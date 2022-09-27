@@ -2,5 +2,6 @@ using NStrings
 using Test
 
 @testset "NStrings.jl" begin
-    # Write your tests here.
+    include("construction.jl")
+    include("convert.jl")
 end
