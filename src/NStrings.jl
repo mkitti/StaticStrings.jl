@@ -2,6 +2,8 @@
 """
 module NStrings
 
+using Compat
+
 export NString, CNString, NMString, CNMString
 export data, ndata
 export @N_str, @CN_str
