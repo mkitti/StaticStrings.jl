@@ -67,12 +67,20 @@ Base.convert(::Type{T}, nstring::AbstractNString) where {T <: NTuple{N,UInt8} wh
 
 # Unsafe conversions
 
-function Base.unsafe_convert(::Type{Ptr{UInt8}}, ref_s::Ref{NMString{N}}) where N
-    return Ptr{UInt8}(pointer(s))
+function Base.cconvert(::Type{Ptr{UInt8}}, nstring::NS) where NS <: AbstractNString
+    convert(Ref{NS}, nstring)
 end
 
-function Base.unsafe_convert(::Type{Ptr{Int8}}, ref_s::Ref{NMString{N}}) where N
-    return Ptr{Int8}(pointer(s))
+function Base.cconvert(::Type{Ptr{Int8}}, nstring::NS) where NS <: AbstractNString
+    convert(Ref{NS}, nstring)
+end
+
+function Base.unsafe_convert(::Type{Ptr{UInt8}}, ref_s::Ref{<: AbstractNString})
+    return Ptr{UInt8}(pointer_from_objref(ref_s))
+end
+
+function Base.unsafe_convert(::Type{Ptr{Int8}}, ref_s::Ref{<: AbstractNString})
+    return Ptr{Int8}(pointer_from_objref(ref_s))
 end
 
 function Base.unsafe_convert(::Type{Cstring}, ref_s::Ref{NMString{N}}) where N
