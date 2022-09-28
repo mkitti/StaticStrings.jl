@@ -57,7 +57,7 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
-[[deps.NStrings]]
+[[deps.StaticStrings]]
 path = ".."
 uuid = "4db0a0c5-418a-4e1d-8806-cb305fe13294"
 version = "0.1.0"
