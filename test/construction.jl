@@ -10,7 +10,7 @@ using Test
     @test CStaticString(hello0)[1:5] == hello
     @test Static"Hello" === StaticString("Hello")
     @test CStatic"Hello\0" === CStaticString("Hello\0")
-    @static if VERSION ≥ v1.6
+    @static if VERSION ≥ v"1.6"
         @test Static"Hello"6 === StaticString("Hello\0")
         @test CStatic"Hello"6 === CStaticString("Hello\0")
     end
