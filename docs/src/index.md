@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = NStrings
+CurrentModule = StaticStrings
 ```
 
-# NStrings
+# StaticStrings
 
-Documentation for [NStrings](https://github.com/mkitti/NStrings.jl).
+Documentation for [StaticStrings](https://github.com/mkitti/StaticStrings.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [NStrings]
+Modules = [StaticStrings]
 ```
