@@ -21,6 +21,8 @@ data(string::StaticString) = string.data
     StaticCString(data::NTuple{N,UInt8})
 
 [`AbstractStaticString`](@ref) that wraps a NTuple{N,UInt8} but requires NUL codeunits to be at the end.
+
+N.B. The size of a `StaticCString{N}` is `N+1` bytes.
 """
 struct CStaticString{N} <: AbstractStaticString{N}
     data::NTuple{N,UInt8}
