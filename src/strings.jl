@@ -5,7 +5,7 @@ import Base: between, _string_n
 
 ## thisind, nextind ##
 
-Base.thisind(s::AbstractNString{N}, i::Int) where N = _thisind_str(s,i)
+Base.thisind(s::AbstractStaticString{N}, i::Int) where N = _thisind_str(s,i)
 
 @inline function _thisind_str(s, i::Int)
     i == 0 && return 0
@@ -25,7 +25,7 @@ Base.thisind(s::AbstractNString{N}, i::Int) where N = _thisind_str(s,i)
     return i
 end
 
-Base.@propagate_inbounds Base.nextind(s::AbstractNString{N}, i::Int) where N = _nextind_str(s, i)
+Base.@propagate_inbounds Base.nextind(s::AbstractStaticString{N}, i::Int) where N = _nextind_str(s, i)
 
 @inline function _nextind_str(s, i::Int)
     i == 0 && return 1
@@ -51,10 +51,10 @@ Base.@propagate_inbounds Base.nextind(s::AbstractNString{N}, i::Int) where N = _
     ifelse(b & 0xc0 ≠ 0x80, i, i+1)
 end
 
-Base.byte_string_classify(s::AbstractNString{N}) where N =
+Base.byte_string_classify(s::AbstractStaticString{N}) where N =
     ccall(:u8_isvalid, Int32, (Ptr{UInt8}, Int), Ref(s), N)
 
-@inline function Base.iterate(s::AbstractNString{N}, i::Int=firstindex(s)) where N
+@inline function Base.iterate(s::AbstractStaticString{N}, i::Int=firstindex(s)) where N
     (i % UInt) - 1 < ncodeunits(s) || return nothing
     b = @inbounds codeunit(s, i)
     u = UInt32(b) << 24
@@ -62,7 +62,7 @@ Base.byte_string_classify(s::AbstractNString{N}) where N =
     return iterate_continued(s, i, u)
 end
 
-function iterate_continued(s::AbstractNString{N}, i::Int, u::UInt32) where N
+function iterate_continued(s::AbstractStaticString{N}, i::Int, u::UInt32) where N
     u < 0xc0000000 && (i += 1; @goto ret)
     n = ncodeunits(s)
     # first continuation byte
@@ -84,14 +84,14 @@ function iterate_continued(s::AbstractNString{N}, i::Int, u::UInt32) where N
     return reinterpret(Char, u), i
 end
 
-Base.@propagate_inbounds function Base.getindex(s::AbstractNString, i::Int)
+Base.@propagate_inbounds function Base.getindex(s::AbstractStaticString, i::Int)
     b = codeunit(s, i)
     u = UInt32(b) << 24
     between(b, 0x80, 0xf7) || return reinterpret(Char, u)
     return getindex_continued(s, i, u)
 end
 
-function getindex_continued(s::AbstractNString{N}, i::Int, u::UInt32) where N
+function getindex_continued(s::AbstractStaticString{N}, i::Int, u::UInt32) where N
     if u < 0xc0000000
         # called from `getindex` which checks bounds
         @inbounds isvalid(s, i) && @goto ret
@@ -117,9 +117,9 @@ function getindex_continued(s::AbstractNString{N}, i::Int, u::UInt32) where N
     return reinterpret(Char, u)
 end
 
-Base.getindex(s::AbstractNString, r::AbstractUnitRange{<:Integer}) = s[Int(first(r)):Int(last(r))]
+Base.getindex(s::AbstractStaticString, r::AbstractUnitRange{<:Integer}) = s[Int(first(r)):Int(last(r))]
 
-@inline function Base.getindex(s::AbstractNString, r::UnitRange{Int})
+@inline function Base.getindex(s::AbstractStaticString, r::UnitRange{Int})
     isempty(r) && return ""
     i, j = first(r), last(r)
     @boundscheck begin
@@ -135,9 +135,9 @@ Base.getindex(s::AbstractNString, r::AbstractUnitRange{<:Integer}) = s[Int(first
     return ss
 end
 
-Base.length(s::AbstractNString{N}) where N = length_continued(s, 1, ncodeunits(s), ncodeunits(s))
+Base.length(s::AbstractStaticString{N}) where N = length_continued(s, 1, ncodeunits(s), ncodeunits(s))
 
-@inline function Base.length(s::AbstractNString{N}, i::Int, j::Int) where N
+@inline function Base.length(s::AbstractStaticString{N}, i::Int, j::Int) where N
     @boundscheck begin
         0 < i ≤ ncodeunits(s)+1 || throw(BoundsError(s, i))
         0 ≤ j < ncodeunits(s)+1 || throw(BoundsError(s, j))
@@ -148,7 +148,7 @@ Base.length(s::AbstractNString{N}) where N = length_continued(s, 1, ncodeunits(s
     length_continued(s, i, j, c)
 end
 
-@inline function length_continued(s::AbstractNString, i::Int, n::Int, c::Int)
+@inline function length_continued(s::AbstractStaticString, i::Int, n::Int, c::Int)
     i < n || return c
     @inbounds b = codeunit(s, i)
     @inbounds while true
@@ -175,9 +175,9 @@ end
 
 ## overload methods for efficiency ##
 
-Base.isvalid(s::AbstractNString, i::Int) = checkbounds(Bool, s, i) && thisind(s, i) == i
+Base.isvalid(s::AbstractStaticString, i::Int) = checkbounds(Bool, s, i) && thisind(s, i) == i
 
-function Base.isascii(s::AbstractNString{N}) where N
+function Base.isascii(s::AbstractStaticString{N}) where N
     @inbounds for i = 1:ncodeunits(s)
         codeunit(s, i) >= 0x80 && return false
     end

@@ -1,7 +1,7 @@
-using NStrings
+using StaticStrings
 using Test
 
-@testset "NStrings.jl" begin
+@testset "StaticStrings.jl" begin
     include("construction.jl")
     include("convert.jl")
     include("ccall.jl")
