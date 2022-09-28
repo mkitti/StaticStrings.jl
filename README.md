@@ -13,7 +13,7 @@ StaticStrings.jl implements several `AbstractString` subtypes that wrap a `NTupl
 
 The concrete subtypes of `AbstractStaticString` are as follows.
 1. `StaticString{N}` is just a wrapper of a `NTuple{N,UInt8}` of exactly `N` codeunits.
-2. `CStaticString{N}` is similar to a `StaticString` but requires that the Nth codeunit and only the Nth codeunit be a NUL (`0x00`) byte.
+2. `CStaticString{N}` is similar to a `StaticString` but requires all the NUL bytes to be terminal codeunits. The struct also contains an extra terminal NUL.
 
 ## Usage
 
