@@ -4,7 +4,7 @@ module NStrings
 
 using Compat
 
-export NString, CNString, NMString, CNMString
+export NString, CNString
 export data, ndata
 export @N_str, @CN_str
 
