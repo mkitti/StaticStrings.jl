@@ -55,6 +55,6 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
-            using NStrings
-            DocMeta.setdocmeta!(NStrings, :DocTestSetup, :(using NStrings); recursive=true)
-            doctest(NStrings)'
+            using StaticStrings
+            DocMeta.setdocmeta!(StaticStrings, :DocTestSetup, :(using StaticStrings); recursive=true)
+            doctest(StaticStrings)'
