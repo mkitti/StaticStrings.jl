@@ -18,6 +18,8 @@ function CStaticString(s::AbstractStaticString{N}) where N
     CStaticString(data(s))
 end
 CStaticString{N}(s::AbstractStaticString{N}) where N = CStaticString(data(s))
+PaddedStaticString{N, PAD}(s::AbstractStaticString) where {N,PAD} = PaddedStaticString{N, PAD}(data(s))
+PaddedStaticString{N}(s::AbstractStaticString) where N = PaddedStaticString{N}(data(s))
 
 # Convert AbstractStaticString to String
 
@@ -44,6 +46,8 @@ function StaticString{N}(s::AbstractString) where N
 end
 CStaticString(s::AbstractString) = CStaticString(StaticString(s))
 CStaticString{N}(s::AbstractString) where N = CStaticString{N}(StaticString{N}(s))
+PaddedStaticString{N, PAD}(s::AbstractString) where {N,PAD} = PaddedStaticString{N, PAD}(StaticString(s))
+PaddedStaticString{N}(s::AbstractString) where {N} = PaddedStaticString{N}(StaticString(s))
 
 # Tuple
 Base.Tuple(nstring::AbstractStaticString) = data(nstring)

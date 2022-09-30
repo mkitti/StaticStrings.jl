@@ -5,4 +5,5 @@ using Test
     include("construction.jl")
     include("convert.jl")
     include("ccall.jl")
+    include("show.jl")
 end

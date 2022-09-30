@@ -9,8 +9,8 @@ module StaticStrings
 
 using Compat
 
-export StaticString, CStaticString
-export @Static_str, @CStatic_str
+export StaticString, CStaticString, PaddedStaticString
+export @Static_str, @CStatic_str, @Padded_str
 
 include("types.jl")
 include("abstractnstrings.jl")
