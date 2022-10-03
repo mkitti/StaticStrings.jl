@@ -5,13 +5,15 @@ Create a [`StaticString`](@ref) from "string".
 Optionally specify the number of codeunits, `N`.
 """
 macro Static_str(ex)
+    s = unescape_string(ex)
     quote
-        StaticString(unescape_string($ex))
+        StaticString(unescape_string($s))
     end
 end
 macro Static_str(ex, N)
+    s = unescape_string(ex)
     quote
-        StaticString{$N}(unescape_string($ex))
+        StaticString{$N}($s)
     end
 end
 
@@ -22,13 +24,15 @@ Create a [`CstaticString`](@ref) from "string".
 Optionally specify the number of codeunits, `N`.
 """
 macro CStatic_str(ex)
+    s = unescape_string(ex)
     quote
-        CStaticString(unescape_string($ex))
+        CStaticString($s)
     end
 end
 macro CStatic_str(ex, N)
+    s = unescape_string(ex)
     quote
-        CStaticString{$N}(unescape_string($ex))
+        CStaticString{$N}($s)
     end
 end
 
@@ -39,10 +43,10 @@ Creat [`PaddedStaticString`](@ref) of `N` codeunits from "string".
 The last codeunit in the provided string becomes the pad.
 """
 macro Padded_str(ex, N)
+    s = unescape_string(ex)
+    pad = codeunits(s)[end]
     quote
-        let escaped = unescape_string($ex)
-            PaddedStaticString{$N, codeunits(escaped)[end]}(escaped)
-        end
+        PaddedStaticString{$N, $pad}($s)
     end
 end
 
