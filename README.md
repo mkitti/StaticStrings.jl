@@ -49,11 +49,6 @@ Padded"Hello "20
 julia> StaticString(ps)
 Static"Hello               "20
 
-julia> push!(StaticString["Hello"], "Bye")
-2-element Vector{StaticString}:
- "Hello"
- "Bye"
-
 julia> strs = StaticString{5}["Hello"]
 1-element Vector{StaticString{5}}:
  Static"Hello"5
