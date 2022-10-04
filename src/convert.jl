@@ -34,6 +34,9 @@ function StaticString(s::AbstractString)
 end
 function StaticString{N}(s::AbstractString) where N 
     nc = ncodeunits(s)
+    codeunit(s) == UInt8 ||
+        throw(ArgumentError("Only AbstractStrings with UInt8 codeunits can be converted to StaticString"))
+    nc <= N || throw(InexactError("\"$s\" contains more than $N codeunits."))
     StaticString{N}(ntuple(i->i <= nc ? codeunit(s,i) : 0x00, Val(N)))
 end
 (ass::Type{ASS})(s::AbstractString) where {ASS <: AbstractStaticString} = ass(StaticString(s))
