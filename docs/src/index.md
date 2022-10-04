@@ -59,6 +59,19 @@ julia> push!(StaticString["Hello"], "Bye")
 ```@index
 ```
 
-```@autodocs
-Modules = [StaticStrings]
+```@docs
+StaticStrings
+AbstractStaticString
+StaticString
+@Static_str
+ShortStaticString
+@Short_str
+LongStaticString
+@Long_str
+CStaticString
+@CStatic_str
+PaddedStaticString
+@Padded_str
+data
+pad
 ```

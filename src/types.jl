@@ -9,6 +9,13 @@ abstract type AbstractStaticString{N} <: AbstractString end
 (ASS::Type{<:AbstractStaticString{N}})(data::NTuple{N,Int8}) where N = ASS(UInt8.(data))
 
 """
+    StaticStrings.data(string::AbstractStaticString{N})::NTuple{N,UInt8} where N
+
+Retrieve the internal `Tuple` containing the `N` stored `UInt8` code units.
+"""
+data
+
+"""
     StaticString(data::NTuple{N,UInt8})
     Static"string"N
 
@@ -125,7 +132,12 @@ struct PaddedStaticString{N,PAD} <: AbstractStaticString{N}
 end
 
 data(string::PaddedStaticString) = string.data
-pad(string::PaddedStaticString{N,PAD} where N) where PAD = PAD
+"""
+    StaticStrings.pad(string::PaddedStaticString)
+
+Retrieve the UInt8 code unit used for padding.
+"""
+pad(string::PaddedStaticString{N,PAD} where N) where PAD = PAD::UInt8
 
 function Base.ncodeunits(string::PaddedStaticString{N,PAD}) where {N,PAD}
     pos = findlast(!=(UInt8(PAD)), string.data)

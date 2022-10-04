@@ -48,6 +48,11 @@ LongStaticString{N}(s::AbstractString, ncodeunits) where N = LongStaticString{N}
 
 ## [Abstract]String to PaddedStaticString
 
+"""
+    StaticStrings.pad(s::AbstractString, N::Integer, PAD::UInt8=0x0)::PaddedStaticString
+
+Pad an `AbstractString` to `N` code units with the code unit `PAD`.
+"""
 pad(s::AbstractString, N::Integer, PAD::UInt8=0x0) =
     PaddedStaticString{N,PAD}(s)
 
