@@ -20,5 +20,6 @@ include("comparison.jl")
 include("strings.jl")
 include("convert.jl")
 include("macros.jl")
+include("show.jl")
 
 end # module NStrings

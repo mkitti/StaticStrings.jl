@@ -16,6 +16,7 @@ macro Static_str(ex, N)
         StaticString{$N}($s)
     end
 end
+_macroname(::Type{<:StaticString}) = "Static"
 
 """
     Short"string"N
@@ -36,6 +37,7 @@ macro Short_str(ex, N)
         ShortStaticString{$N}($s, $n)
     end
 end
+_macroname(::Type{<:ShortStaticString}) = "Short"
 
 """
     Long"string"N
@@ -56,6 +58,7 @@ macro Long_str(ex, N)
         LongStaticString{$N}($s, $n)
     end
 end
+_macroname(::Type{<:LongStaticString}) = "Long"
 
 """
     CStatic"string"[N]
@@ -75,6 +78,7 @@ macro CStatic_str(ex, N)
         CStaticString{$N}($s)
     end
 end
+_macroname(::Type{<:CStaticString}) = "CStatic"
 
 """
     Padded"string[PAD]"N
@@ -89,4 +93,6 @@ macro Padded_str(ex, N)
         PaddedStaticString{$N, $pad}($s)
     end
 end
+_macroname(::Type{<:PaddedStaticString}) = "Padded"
+
 
