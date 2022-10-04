@@ -6,4 +6,5 @@ using Test
     include("convert.jl")
     include("ccall.jl")
     include("show.jl")
+    include("macros.jl")
 end

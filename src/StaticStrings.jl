@@ -10,7 +10,9 @@ module StaticStrings
 using Compat
 
 export StaticString, CStaticString, PaddedStaticString
+export ShortStaticString, LongStaticString
 export @Static_str, @CStatic_str, @Padded_str
+export @Short_str, @Long_str
 
 include("types.jl")
 include("abstractnstrings.jl")

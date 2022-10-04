@@ -1,25 +1,17 @@
 # Convert between AbstractStaticStrings
 
-function StaticString(s::AbstractStaticString{N}) where N
-    return StaticString{N}(data(s))
-end
+StaticString(s::AbstractStaticString{N}) where N = StaticString{N}(data(s))
+StaticString{N}(s::AbstractStaticString{N}) where N = StaticString{N}(data(s))
 Base.convert(::Type{StaticString{N}}, s::AbstractStaticString{N}) where N = StaticString(s)
 
-function CStaticString(s::AbstractStaticString{N}) where N
-    #=
-    _data = data(s)
-    M = findfirst(==(0x0), _data)
-    if isnothing(M)
-        error("A CStaticString must have a terminal NUL byte")
-    else
-        CStaticString(_data[1:M])
-    end
-    =#
-    CStaticString(data(s))
-end
-CStaticString{N}(s::AbstractStaticString{N}) where N = CStaticString(data(s))
-PaddedStaticString{N, PAD}(s::AbstractStaticString) where {N,PAD} = PaddedStaticString{N, PAD}(data(s))
+(ass::Type{ASS})(s::AbstractStaticString) where {ASS <: AbstractStaticString} = ass(data(s))
+(ass::Type{ASS})(s::AbstractStaticString{N}) where {N, ASS <: AbstractStaticString{N}} = ass(data(s))
+ShortStaticString(s::AbstractStaticString, ncodeunits) = ShortStaticString(data(s), ncodeunits)
+ShortStaticString{N}(s::AbstractStaticString, ncodeunits) where N = ShortStaticString{N}(data(s), ncodeunits)
+LongStaticString(s::AbstractStaticString, ncodeunits) = LongStaticString(data(s), ncodeunits)
+LongStaticString{N}(s::AbstractStaticString, ncodeunits) where N = LongStaticString{N}(data(s), ncodeunits)
 PaddedStaticString{N}(s::AbstractStaticString) where N = PaddedStaticString{N}(data(s))
+PaddedStaticString{N}(s::AbstractStaticString{N}) where N = PaddedStaticString{N}(data(s))
 
 # Convert AbstractStaticString to String
 
@@ -33,7 +25,7 @@ function Base.convert(::Type{String}, nstring::AbstractStaticString{N}) where N
     return String(nstring)
 end
 
-# Convert String to AbstractStaticStrings
+# Convert [Abstract]String to AbstractStaticStrings
 
 function StaticString(s::AbstractString)
     codeunit(s) == UInt8 ||
@@ -42,17 +34,25 @@ function StaticString(s::AbstractString)
 end
 function StaticString{N}(s::AbstractString) where N 
     nc = ncodeunits(s)
-    StaticString{N}(ntuple(i->i <= nc ? codeunit(s,i) : 0x00, N))
+    StaticString{N}(ntuple(i->i <= nc ? codeunit(s,i) : 0x00, Val(N)))
 end
-CStaticString(s::AbstractString) = CStaticString(StaticString(s))
-CStaticString{N}(s::AbstractString) where N = CStaticString{N}(StaticString{N}(s))
-PaddedStaticString{N, PAD}(s::AbstractString) where {N,PAD} = PaddedStaticString{N, PAD}(StaticString(s))
-PaddedStaticString{N}(s::AbstractString) where {N} = PaddedStaticString{N}(StaticString(s))
+(ass::Type{ASS})(s::AbstractString) where {ASS <: AbstractStaticString} = ass(StaticString(s))
+(ass::Type{ASS})(s::AbstractString) where {N, ASS <: AbstractStaticString{N}} = ass(StaticString{N}(s))
+ShortStaticString(s::AbstractString, ncodeunits) = ShortStaticString(StaticString(s), ncodeunits)
+ShortStaticString{N}(s::AbstractString, ncodeunits) where N = ShortStaticString{N}(StaticString{N}(s), ncodeunits)
+LongStaticString(s::AbstractString, ncodeunits) = LongStaticString(StaticString(s), ncodeunits)
+LongStaticString{N}(s::AbstractString, ncodeunits) where N = LongStaticString{N}(StaticString{N}(s), ncodeunits)
+
+## [Abstract]String to PaddedStaticString
+
+pad(s::AbstractString, N::Integer, PAD::UInt8=0x0) =
+    PaddedStaticString{N,PAD}(s)
 
 # Tuple
 Base.Tuple(nstring::AbstractStaticString) = data(nstring)
 Base.convert(::Type{Tuple}, nstring::AbstractStaticString) = Tuple(nstring)
 Base.convert(::Type{T}, nstring::AbstractStaticString) where {T <: NTuple{N,UInt8} where N} = data(nstring)
+Base.convert(::Type{NTuple{N,UInt8}}, nstring::AbstractStaticString{N}) where N = data(nstring)
 
 # Unsafe conversions
 
