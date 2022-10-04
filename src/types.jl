@@ -10,6 +10,7 @@ abstract type AbstractStaticString{N} <: AbstractString end
 
 """
     StaticString(data::NTuple{N,UInt8})
+    Static"string"N
 
 [`AbstractStaticString`](@ref) that stores codeunits in a NTuple{N,UInt8}.
 """
@@ -20,6 +21,7 @@ data(string::StaticString) = string.data
 
 """
     ShortStaticString(data::NTuple{N,UInt8}, ncodeunits::UInt8)
+    Short"string"N
 
 [`AbstractStaticString`](@ref) that stores ncodeunits codeunits in a NTuple{N,UInt8} 
 
@@ -36,6 +38,7 @@ data(string::ShortStaticString) = string.data
 
 """
     LongStaticString(data::NTuple{N,UInt8}, ncodeunits::Int)
+    Long"string"N
 
 [`AbstractStaticString`](@ref) that stores ncodeunits codeunits in a NTuple{N,UInt8} 
 
@@ -52,6 +55,7 @@ data(string::LongStaticString) = string.data
 
 """
     CStaticString(data::NTuple{N,UInt8})
+    CStatic"string"N
 
 [`AbstractStaticString`](@ref) that stores codeunits in a NTuple{N,UInt8} but requires NUL codeunits to be at the end.
 
@@ -100,6 +104,7 @@ end
 
 """
     PaddedStaticString{N,PAD}(data::NTuple{N,UInt8})
+    Padded"string[PAD]"N
 
 [`AbstractStaticString`](@ref) that is padded with `PAD`.
 """
