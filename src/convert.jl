@@ -30,7 +30,7 @@ end
 function StaticString(s::AbstractString)
     codeunit(s) == UInt8 ||
         throw(ArgumentError("Only AbstractStrings with UInt8 codeunits can be converted to StaticString"))
-    return StaticString(NTuple{ncodeunits(s),UInt8}(s))
+    return StaticString(NTuple{ncodeunits(s),UInt8}(codeunits(s)))
 end
 function StaticString{N}(s::AbstractString) where N 
     nc = ncodeunits(s)

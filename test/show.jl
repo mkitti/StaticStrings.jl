@@ -1,7 +1,7 @@
 using StaticStrings
 using Test
 
-@testset "show" begin
+@testset "Show" begin
     io = IOBuffer()
     m = MIME"text/plain"()
     show(io, m, Static"Hello")
@@ -12,6 +12,8 @@ using Test
     @test String(take!(io)) == "Long\"Hello\"5"
     show(io, m, CStatic"Hello")
     @test String(take!(io)) == "CStatic\"Hello\"5"
-    show(io, m, Padded"Hello "20)
-    @test String(take!(io)) == "Padded\"Hello \"20"
 end
+@static if VERSION >= v"1.6"
+    include("post_julia_1_6/show.jl")
+end
+
