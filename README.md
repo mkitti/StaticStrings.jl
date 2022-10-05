@@ -62,3 +62,10 @@ julia> push!(strs, "Bye")
 ## Status
 
 As of September 2022, this is currently under initial development.
+
+## Related Packages
+
+1. [InlineStrings.jl](https://github.com/JuliaStrings/InlineStrings.jl) implements a form of static strings using primitives. This is facilitates high performance parsing.
+2. [StaticTools.jl](https://github.com/brenhinkeller/StaticTools.jl) provides tools for static compilation. The package provides a different implementation of StaticString.
+
+The ability of StaticStrings.jl to compose with these packages is being evaluated. Initial tests have been written.
