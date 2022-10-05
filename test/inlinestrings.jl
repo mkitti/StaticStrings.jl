@@ -1,3 +1,5 @@
+using Pkg
+Pkg.add("InlineStrings")
 using StaticStrings
 using InlineStrings
 using Test

@@ -9,6 +9,6 @@ using Test
     @test @SubStatic_str("Hello", 10) == "Hello"
     @test @Padded_str("Hello ", 10) == "Hello"
 end
-@static if VERSION ≥ v"1.6"
+@static if VERSION ≥ v"1.7"
     include("post_julia_1_6/macros.jl")
 end

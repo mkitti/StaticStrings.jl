@@ -9,7 +9,7 @@ SubStatic"Lorem ipsum dolor sit amet"31
 CStatic"Lorem ipsum dolor sit amet"31
 Padded"Lorem ipsum dolor sit amet "31
 
-@testset "Macros Post Julia 1.6" begin
+@testset "Macros Post Julia 1.7" begin
     @test @allocated(Static"Lorem ipsum dolor sit amet") == 0
     @test @allocated(SubStatic"Lorem ipsum dolor sit amet") == 0
     @test @allocated(CStatic"Lorem ipsum dolor sit amet") == 0
