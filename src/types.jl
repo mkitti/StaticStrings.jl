@@ -26,13 +26,22 @@ struct StaticString{N} <: AbstractStaticString{N}
 end
 
 """
-    SubStaticString(data::NTuple{N, UInt8})
+    SubStaticString(data::NTuple{N, UInt8}, ind::Integer)
+    SubStaticString(data::NTuple{N, UInt8}, ind::AbstractUnitRange)
+    SubStatic"string"N
+
+[`AbstractStaticString`](@ref) that stores up to `N` codeunits in a NTuple{N,UInt8}.
+The actual codeunits used are a subset indicated by an AbstractUnitRange.
 """
 struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
     data::NTuple{N, UInt8}
     ind::R
+    function SubStaticString{N,R}(data, ind::R) where {N,R <: AbstractUnitRange}
+        ind ⊆ eachindex(data) || ArgumentError("$ind is not a subset of $(eachindex(data)), the indices of data")
+        return new{N, R}(data, ind)
+    end
+    SubStaticString(data::NTuple{N,UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N,R}(data, ind)
 end
-#SubStaticString(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
 SubStaticString(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))

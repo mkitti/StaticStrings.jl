@@ -32,6 +32,8 @@ _macroname(::Type{<:StaticString}) = "Static"
 
 Create a [`SubStaticString`](@ref) from "string".
 Optionally, specify the number of codeunits, `N`.
+The result will be a `SubStaticString{N}` but the codeunits used will be those
+of the original string.
 
 # Examples
 ```jldoctest
