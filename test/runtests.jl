@@ -7,6 +7,8 @@ using Test
     include("ccall.jl")
     include("show.jl")
     include("macros.jl")
-    include("inlinestrings.jl")
-    include("statictools.jl")
+    @static if VERSION ≥ v"1.6"
+        include("inlinestrings.jl")
+        include("statictools.jl")
+    end
 end
