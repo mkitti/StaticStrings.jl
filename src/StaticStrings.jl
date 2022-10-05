@@ -16,16 +16,14 @@ julia> StaticString((0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c,
 Static"Hello world"11
 ```
 
-See [`StaticString`](@ref), [`ShortStaticString`](@ref), [`LongStaticString`](@ref), [`CStaticString`](@ref), [`PaddedStaticString`](@ref)
+See [`StaticString`](@ref), [`SubStaticString`](@ref), [`CStaticString`](@ref), [`PaddedStaticString`](@ref)
 """
 module StaticStrings
 
 using Compat
 
-export StaticString, CStaticString, PaddedStaticString
-export ShortStaticString, LongStaticString
-export @Static_str, @CStatic_str, @Padded_str
-export @Short_str, @Long_str
+export StaticString, SubStaticString, CStaticString, PaddedStaticString
+export @Static_str, @CStatic_str, @Padded_str, @SubStatic_str
 
 include("types.jl")
 include("abstractnstrings.jl")

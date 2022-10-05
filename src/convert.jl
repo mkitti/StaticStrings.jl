@@ -4,12 +4,10 @@ StaticString(s::AbstractStaticString{N}) where N = StaticString{N}(data(s))
 StaticString{N}(s::AbstractStaticString{N}) where N = StaticString{N}(data(s))
 Base.convert(::Type{StaticString{N}}, s::AbstractStaticString{N}) where N = StaticString(s)
 
-(ass::Type{ASS})(s::AbstractStaticString) where {ASS <: AbstractStaticString} = ass(data(s))
-(ass::Type{ASS})(s::AbstractStaticString{N}) where {N, ASS <: AbstractStaticString{N}} = ass(data(s))
-ShortStaticString(s::AbstractStaticString, ncodeunits) = ShortStaticString(data(s), ncodeunits)
-ShortStaticString{N}(s::AbstractStaticString, ncodeunits) where N = ShortStaticString{N}(data(s), ncodeunits)
-LongStaticString(s::AbstractStaticString, ncodeunits) = LongStaticString(data(s), ncodeunits)
-LongStaticString{N}(s::AbstractStaticString, ncodeunits) where N = LongStaticString{N}(data(s), ncodeunits)
+(ass::Type{ASS})(s::AbstractStaticString, args...) where {ASS <: AbstractStaticString} = ass(data(s), args...)
+(ass::Type{ASS})(s::AbstractStaticString{N}, args...) where {N, ASS <: AbstractStaticString{N}} = ass(data(s), args...)
+SubStaticString{N}(s::AbstractStaticString, args...) where N = SubStaticString{N}(data(s), args...)
+SubStaticString{N}(s::AbstractStaticString{N}, args...) where N = SubStaticString{N}(data(s), args...)
 PaddedStaticString{N}(s::AbstractStaticString) where N = PaddedStaticString{N}(data(s))
 PaddedStaticString{N}(s::AbstractStaticString{N}) where N = PaddedStaticString{N}(data(s))
 
@@ -36,15 +34,14 @@ function StaticString{N}(s::AbstractString) where N
     nc = ncodeunits(s)
     codeunit(s) == UInt8 ||
         throw(ArgumentError("Only AbstractStrings with UInt8 codeunits can be converted to StaticString"))
-    nc <= N || throw(InexactError("\"$s\" contains more than $N codeunits."))
+        nc <= N || throw(InexactError(:StaticString, StaticString{N}, s))
     StaticString{N}(ntuple(i->i <= nc ? codeunit(s,i) : 0x00, Val(N)))
 end
-(ass::Type{ASS})(s::AbstractString) where {ASS <: AbstractStaticString} = ass(StaticString(s))
-(ass::Type{ASS})(s::AbstractString) where {N, ASS <: AbstractStaticString{N}} = ass(StaticString{N}(s))
-ShortStaticString(s::AbstractString, ncodeunits) = ShortStaticString(StaticString(s), ncodeunits)
-ShortStaticString{N}(s::AbstractString, ncodeunits) where N = ShortStaticString{N}(StaticString{N}(s), ncodeunits)
-LongStaticString(s::AbstractString, ncodeunits) = LongStaticString(StaticString(s), ncodeunits)
-LongStaticString{N}(s::AbstractString, ncodeunits) where N = LongStaticString{N}(StaticString{N}(s), ncodeunits)
+(ass::Type{ASS})(s::AbstractString, args...) where {ASS <: AbstractStaticString} = ass(StaticString(s), args...)
+(ass::Type{ASS})(s::AbstractString, args...) where {N, ASS <: AbstractStaticString{N}} = ass(StaticString{N}(s), args...)
+#SubStaticString(s::AbstractString) = SubStaticString(StaticString(s))
+#SubStaticString(s::AbstractString, args...) = SubStaticString(StaticString(s), args...)
+#SubStaticString{N}(s::AbstractString, args...) where N = SubStaticString{N}(StaticString{N}(s), args...)
 
 ## [Abstract]String to PaddedStaticString
 

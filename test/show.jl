@@ -6,10 +6,8 @@ using Test
     m = MIME"text/plain"()
     show(io, m, Static"Hello")
     @test String(take!(io)) == "Static\"Hello\"5"
-    show(io, m, Short"Hello")
-    @test String(take!(io)) == "Short\"Hello\"5"
-    show(io, m, Long"Hello")
-    @test String(take!(io)) == "Long\"Hello\"5"
+    show(io, m, SubStatic"Hello")
+    @test String(take!(io)) == "SubStatic\"Hello\"5"
     show(io, m, CStatic"Hello")
     @test String(take!(io)) == "CStatic\"Hello\"5"
 end

@@ -4,7 +4,7 @@ using Test
 @testset "Conversion" begin
     hello_world = StaticString("hello world!")
     @test hello_world == "hello world!"
-    for ss in (ShortStaticString, LongStaticString, CStaticString, PaddedStaticString{12})
+    for ss in (SubStaticString, CStaticString, PaddedStaticString{12})
         @test convert(ss, hello_world) == hello_world
     end
     hello_world_str = String(hello_world)

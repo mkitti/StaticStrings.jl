@@ -13,7 +13,7 @@ abstract type AbstractStaticString{N} <: AbstractString end
 
 Retrieve the internal `Tuple` containing the `N` stored `UInt8` code units.
 """
-data
+data(s::AbstractStaticString) = s.data
 
 """
     StaticString(data::NTuple{N,UInt8})
@@ -24,41 +24,20 @@ data
 struct StaticString{N} <: AbstractStaticString{N}
     data::NTuple{N,UInt8}
 end
-data(string::StaticString) = string.data
 
 """
-    ShortStaticString(data::NTuple{N,UInt8}, ncodeunits::UInt8)
-    Short"string"N
-
-[`AbstractStaticString`](@ref) that stores ncodeunits codeunits in a NTuple{N,UInt8} 
-
-N.B. The size of a `ShortStaticString{N}` is `N+1` bytes.
+    SubStaticString(data::NTuple{N, UInt8})
 """
-struct ShortStaticString{N} <: AbstractStaticString{N}
-    data::NTuple{N,UInt8}
-    ncodeunits::UInt8
+struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
+    data::NTuple{N, UInt8}
+    ind::R
 end
-ShortStaticString{N}(data::NTuple{N,UInt8}) where N = ShortStaticString{N}(data, N)
-ShortStaticString(data::NTuple{N,UInt8}) where N = ShortStaticString{N}(data, N)
-@inline Base.ncodeunits(s::ShortStaticString)::Int = s.ncodeunits
-data(string::ShortStaticString) = string.data
-
-"""
-    LongStaticString(data::NTuple{N,UInt8}, ncodeunits::Int)
-    Long"string"N
-
-[`AbstractStaticString`](@ref) that stores ncodeunits codeunits in a NTuple{N,UInt8} 
-
-N.B. The size of a `LongStaticString{N}` is `N+8` bytes.
-"""
-struct LongStaticString{N} <: AbstractStaticString{N}
-    data::NTuple{N,UInt8}
-    ncodeunits::Int
-end
-LongStaticString{N}(data::NTuple{N,UInt8}) where N = LongStaticString{N}(data, N)
-LongStaticString(data::NTuple{N,UInt8}) where N = LongStaticString{N}(data, N)
-@inline Base.ncodeunits(s::LongStaticString)::Int = s.ncodeunits
-data(string::LongStaticString) = string.data
+#SubStaticString(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
+SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
+SubStaticString(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
+SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
+@inline Base.ncodeunits(s::SubStaticString) = length(s.ind)
+@inline Base.codeunits(s::SubStaticString) = s.data[s.ind]
 
 """
     CStaticString(data::NTuple{N,UInt8})
@@ -97,9 +76,6 @@ function _check_for_nuls(data::NTuple{N,UInt8}) where N
         throw(ArgumentError("The data of a CStaticString must only contain terminal null bytes at the end."))
 end
 
-
-data(string::CStaticString) = string.data
-
 function Base.ncodeunits(string::CStaticString{N}) where N
     pos = findfirst(==(0x0), string.data)
     if isnothing(pos)
@@ -131,7 +107,6 @@ struct PaddedStaticString{N,PAD} <: AbstractStaticString{N}
     PaddedStaticString{N}(data::NTuple{M,UInt8} where M) where N = PaddedStaticString{N,0x0}(data)
 end
 
-data(string::PaddedStaticString) = string.data
 """
     StaticStrings.pad(string::PaddedStaticString)
 

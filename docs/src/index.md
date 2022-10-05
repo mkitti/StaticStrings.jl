@@ -13,11 +13,10 @@ Fixed-length strings wrapping a `NTuple` for Julia.
 StaticStrings.jl implements several `AbstractString` subtypes that wrap a `NTuple{N,UInt8}`. An `AbstractStaticString` is a `AbstractString` with `N` codeunits.
 
 The concrete subtypes of `AbstractStaticString` are as follows.
-1. `StaticString{N}` is just a wrapper of a `NTuple{N,UInt8}` of exactly `N` codeunits, padded with `\0`, nul, bytes.
-2. `ShortStaticString{N}` is just a wrapper of a `NTuple{N,UInt8}` of up to `N` codeunits, where `N <= 256`
-3. `LongStaticString{N}` is just a wrapper of a `NTuple{N,UInt8}` of up to `N` codeunits, where `N <= typemax(Int)`
-4. `CStaticString{N}` is similar to a `StaticString` but requires all the NUL bytes to be terminal codeunits. The struct also contains an extra terminal NUL.
-5. `PaddedStaticString{N,PAD}` is siimlar to `StaticString` but is padded with an arbitrary byte codeunit.
+1. `StaticString{N}` is a wrapper of a `NTuple{N,UInt8}` of exactly `N` codeunits, padded with `\0`, nul, bytes.
+2. `SubStaticString{N, R <: AbstractUnitRange}` is a wrapper of a `NTuple{N,UInt8}` of up to `N` codeunits, with a unit range indicating a subset of codeunits.
+3. `CStaticString{N}` is similar to a `StaticString` but requires all the NUL bytes to be terminal codeunits. The struct also contains an extra terminal NUL.
+4. `PaddedStaticString{N,PAD}` is siimlar to `StaticString` but is padded with an arbitrary byte codeunit.
 
 ## Usage
 
@@ -64,10 +63,8 @@ StaticStrings
 AbstractStaticString
 StaticString
 @Static_str
-ShortStaticString
-@Short_str
-LongStaticString
-@Long_str
+SubStaticString
+@SubStatic
 CStaticString
 @CStatic_str
 PaddedStaticString

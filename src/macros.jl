@@ -28,64 +28,37 @@ end
 _macroname(::Type{<:StaticString}) = "Static"
 
 """
-    Short"string"[N]
+    SubStatic"string"[N]
 
-Create a [`ShortStaticString`](@ref) from "string".
+Create a [`SubStaticString`](@ref) from "string".
 Optionally, specify the number of codeunits, `N`.
 
 # Examples
 ```jldoctest
-julia> Short"Доброе утро"
-Short"Доброе утро"21
+julia> SubStatic"Як ти?"
+SubStatic"Як ти?"10
 
-julia> Short"Добрый вечер"25
-Short"Добрый вечер"25
+julia> SubStatic"Як ти?"256
+SubStatic"Як ти?"256
 ```
 """
-macro Short_str(ex)
+macro SubStatic_str(ex)
     s = unescape_string(ex)
     quote
-        ShortStaticString($s)
+        SubStaticString($s)
     end
 end
-macro Short_str(ex, N)
-    s = unescape_string(ex)
-    n = ncodeunits(s)
-    quote
-        ShortStaticString{$N}($s, $n)
-    end
-end
-_macroname(::Type{<:ShortStaticString}) = "Short"
-
-"""
-    Long"string"[N]
-
-Create a [`LongStaticString`](@ref) from "string".
-Optionally, specify the number of codeunits, `N`.
-
-# Examples
-```jldoctest
-julia> Long"Як ти?"
-Long"Як ти?"10
-
-julia> Long"Як ти?"256
-Long"Як ти?"256
-```
-"""
-macro Long_str(ex)
-    s = unescape_string(ex)
-    quote
-        LongStaticString($s)
-    end
-end
-macro Long_str(ex, N)
+macro SubStatic_str(ex, N)
     s = unescape_string(ex)
     n = ncodeunits(s)
+    if n <= typemax(UInt8)
+        n = UInt8(n)
+    end
     quote
-        LongStaticString{$N}($s, $n)
+        SubStaticString{$N}($s, $n)
     end
 end
-_macroname(::Type{<:LongStaticString}) = "Long"
+_macroname(::Type{<:SubStaticString}) = "SubStatic"
 
 """
     CStatic"string"[N]

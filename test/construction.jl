@@ -16,12 +16,10 @@ using Test
     @test_throws ArgumentError CStaticString("He\0llo\0")
     @test_throws ArgumentError CStaticString("He\0llo")
     @test CStaticString("Hell\0") == "Hell"
-    @test Short"Hello" == "Hello"
-    @test Long"Hello" == "Hello"
+    @test "Hello" == "Hello"
     @test Static"สวัสดีครับ" == "สวัสดีครับ"
     @test CStatic"สวัสดีครับ" == "สวัสดีครับ"
-    @test Short"สวัสดีครับ" == "สวัสดีครับ"
-    @test Long"สวัสดีครับ" == "สวัสดีครับ"
+    @test SubStatic"สวัสดีครับ" == "สวัสดีครับ"
 end
 @static if VERSION ≥ v"1.6"
     include("post_julia_1_6/construction.jl")

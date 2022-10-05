@@ -6,8 +6,7 @@ using Test
 @testset "Macros" begin
     @test @Static_str("Hello", 10) == "Hello\0\0\0\0\0"
     @test @CStatic_str("Hello", 10) == "Hello"
-    @test @Short_str("Hello", 10) == "Hello"
-    @test @Long_str("Hello", 10) == "Hello"
+    @test @SubStatic_str("Hello", 10) == "Hello"
     @test @Padded_str("Hello ", 10) == "Hello"
 end
 @static if VERSION ≥ v"1.6"
