@@ -7,4 +7,6 @@ using Test
     include("ccall.jl")
     include("show.jl")
     include("macros.jl")
+    include("inlinestrings.jl")
+    include("statictools.jl")
 end
