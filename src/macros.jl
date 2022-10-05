@@ -101,7 +101,7 @@ CStatic"Orada mısın"13
 julia> CStatic"Orada mısın"25
 CStatic"Orada mısın"25
 
-julia> ccall(:printf, Cint, (Ptr{Cchar},), CStatic"Orada mısın\\n"25)
+julia> ccall(:jl_printf, Cint, (Ptr{Nothing}, Ptr{Cchar},), stdout isa IOContext ? stdout.io : stdout, CStatic"Orada mısın\\n"25)
 Orada mısın
 14
 ```
