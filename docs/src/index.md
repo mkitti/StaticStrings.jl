@@ -64,7 +64,7 @@ AbstractStaticString
 StaticString
 @Static_str
 SubStaticString
-@SubStatic
+@SubStatic_str
 CStaticString
 @CStatic_str
 PaddedStaticString
