@@ -11,8 +11,9 @@ Compat = "3, 4"
 julia = "1"
 
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 InlineStrings = "842dd82b-1e85-43dc-bf29-5d0ee9dffc48"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "InlineStrings"]
+test = ["Test", "InlineStrings", "Pkg"]
