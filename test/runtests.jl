@@ -9,6 +9,8 @@ using Test
     include("macros.jl")
     @static if VERSION ≥ v"1.6"
         include("inlinestrings.jl")
+    end
+    @static if VERSION ≥ v"1.7"
         include("statictools.jl")
     end
 end

@@ -1,3 +1,5 @@
+using Pkg
+Pkg.add("StaticTools")
 using StaticStrings
 using StaticTools
 using Test
