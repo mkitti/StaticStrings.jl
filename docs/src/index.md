@@ -29,7 +29,7 @@ Static"Hello world!"12
 julia> Static"Hello world!" |> typeof
 StaticString{12}
 
-julia> CStatic"Hello world!"
+julia> cs = CStatic"Hello world!"
 CStatic"Hello world!"12
 
 julia> ccall(:printf, Cint, (Ptr{Cchar},), cs)
