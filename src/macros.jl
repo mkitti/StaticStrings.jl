@@ -14,15 +14,15 @@ Static"verehrungswürdig\\0\\0\\0"20
 ```
 """
 macro static_str(ex)
-    s = unescape_string(ex)
+    s = StaticString(unescape_string(ex))
     quote
-        StaticString($s)
+        $s
     end
 end
 macro static_str(ex, N)
-    s = unescape_string(ex)
+    s = StaticString{N}(unescape_string(ex))
     quote
-        StaticString{$N}($s)
+        $s
     end
 end
 _macroname(::Type{<:StaticString}) = "static"
@@ -45,9 +45,9 @@ subttatic"Як ти?"256
 ```
 """
 macro substatic_str(ex)
-    s = unescape_string(ex)
+    s = SubStaticString(unescape_string(ex))
     quote
-        SubStaticString($s)
+        $s
     end
 end
 macro substatic_str(ex, N)
@@ -56,8 +56,9 @@ macro substatic_str(ex, N)
     if n <= typemax(UInt8)
         n = UInt8(n)
     end
+    s = SubStaticString{N}(s, n)
     quote
-        SubStaticString{$N}($s, $n)
+        $s
     end
 end
 _macroname(::Type{<:SubStaticString}) = "substatic"
@@ -82,15 +83,15 @@ Orada mısın
 ```
 """
 macro cstatic_str(ex)
-    s = unescape_string(ex)
+    s = CStaticString(unescape_string(ex))
     quote
-        CStaticString($s)
+        $s
     end
 end
 macro cstatic_str(ex, N)
-    s = unescape_string(ex)
+    s = CStaticString{N}(unescape_string(ex))
     quote
-        CStaticString{$N}($s)
+        $s
     end
 end
 _macroname(::Type{<:CStaticString}) = "cstatic"
@@ -113,8 +114,9 @@ static"私は元気です。 ありがとうございました。      "64
 macro padded_str(ex, N)
     s = unescape_string(ex)
     pad = codeunits(s)[end]
+    s = PaddedStaticString{N, pad}(s)
     quote
-        PaddedStaticString{$N, $pad}($s)
+        $s
     end
 end
 _macroname(::Type{<:PaddedStaticString}) = "padded"
