@@ -25,8 +25,8 @@ using Compat
 export StaticString, SubStaticString, CStaticString, PaddedStaticString
 export @Static_str, @CStatic_str, @Padded_str, @SubStatic_str
 
+include("AbstractStaticString.jl")
 include("types.jl")
-include("abstractnstrings.jl")
 include("comparison.jl")
 include("strings.jl")
 include("convert.jl")

@@ -1,19 +1,3 @@
-"""
-    AbstractStaticString{N}
-
-Represents a string of `N` codeunits
-"""
-abstract type AbstractStaticString{N} <: AbstractString end
-
-(ASS::Type{<:AbstractStaticString})(data::NTuple{N,Int8}) where N = ASS(UInt8.(data))
-(ASS::Type{<:AbstractStaticString{N}})(data::NTuple{N,Int8}) where N = ASS(UInt8.(data))
-
-"""
-    StaticStrings.data(string::AbstractStaticString{N})::NTuple{N,UInt8} where N
-
-Retrieve the internal `Tuple` containing the `N` stored `UInt8` code units.
-"""
-data(s::AbstractStaticString) = s.data
 
 """
     StaticString(data::NTuple{N,UInt8})
