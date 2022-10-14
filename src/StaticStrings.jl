@@ -23,7 +23,7 @@ module StaticStrings
 using Compat
 
 export StaticString, SubStaticString, CStaticString, PaddedStaticString
-export @Static_str, @CStatic_str, @Padded_str, @SubStatic_str
+export @static_str, @cstatic_str, @padded_str, @substatic_str
 
 include("AbstractStaticString.jl")
 include("types.jl")

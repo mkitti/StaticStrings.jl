@@ -5,7 +5,7 @@ using InlineStrings
 using Test
 
 @testset "InlineStrings.jl" begin
-    static_string = Static"Hello"
+    static_string = static"Hello"
     inline_string = InlineString(static_string)
     string15 = String15(static_string)
     @test static_string == inline_string

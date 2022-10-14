@@ -1,20 +1,20 @@
 using StaticStrings
 using Test
 
-Static"Lorem ipsum dolor sit amet "
-SubStatic"Lorem ipsum dolor sit amet "
-CStatic"Lorem ipsum dolor sit amet\0"
-Static"Lorem ipsum dolor sit amet"31
-SubStatic"Lorem ipsum dolor sit amet"31
-CStatic"Lorem ipsum dolor sit amet"31
-Padded"Lorem ipsum dolor sit amet "31
+static"Lorem ipsum dolor sit amet "
+substatic"Lorem ipsum dolor sit amet "
+cstatic"Lorem ipsum dolor sit amet\0"
+static"Lorem ipsum dolor sit amet"31
+substatic"Lorem ipsum dolor sit amet"31
+cstatic"Lorem ipsum dolor sit amet"31
+padded"Lorem ipsum dolor sit amet "31
 
 @testset "Macros Post Julia 1.7" begin
-    @test @allocated(Static"Lorem ipsum dolor sit amet") == 0
-    @test @allocated(SubStatic"Lorem ipsum dolor sit amet") == 0
-    @test @allocated(CStatic"Lorem ipsum dolor sit amet") == 0
-    @test @allocated(Static"Lorem ipsum dolor sit amet"31) == 0
-    @test @allocated(SubStatic"Lorem ipsum dolor sit amet"31) == 0
-    @test @allocated(CStatic"Lorem ipsum dolor sit amet"31) == 0
-    @test @allocated(Padded"Lorem ipsum dolor sit amet "31) == 0
+    @test @allocated(static"Lorem ipsum dolor sit amet") == 0
+    @test @allocated(substatic"Lorem ipsum dolor sit amet") == 0
+    @test @allocated(cstatic"Lorem ipsum dolor sit amet") == 0
+    @test @allocated(static"Lorem ipsum dolor sit amet"31) == 0
+    @test @allocated(substatic"Lorem ipsum dolor sit amet"31) == 0
+    @test @allocated(cstatic"Lorem ipsum dolor sit amet"31) == 0
+    @test @allocated(padded"Lorem ipsum dolor sit amet "31) == 0
 end

@@ -23,14 +23,14 @@ The concrete subtypes of `AbstractStaticString` are as follows.
 ```julia
 julia> using StaticStrings
 
-julia> Static"Hello world!"
-Static"Hello world!"12
+julia> static"Hello world!"
+static"Hello world!"12
 
-julia> Static"Hello world!" |> typeof
+julia> static"Hello world!" |> typeof
 StaticString{12}
 
-julia> CStatic"Hello world!"
-CStatic"Hello world!"12
+julia> cs = cstatic"Hello world!\n"
+cstatic"Hello world!\n"13
 
 julia> ccall(:printf, Cint, (Ptr{Cchar},), cs)
 Hello world!
@@ -40,19 +40,19 @@ julia> ccall(:printf, Cint, (Ptr{CStaticString{13}},), Ref(cs))
 Hello world!
 13
 
-julia> Padded"Hello "20
-Padded"Hello "20
+julia> padded"Hello "20
+padded"Hello "20
 
-julia> ps = Padded"Hello "20
-Padded"Hello "20
+julia> ps = padded"Hello "20
+padded"Hello "20
 
 julia> StaticString(ps)
-Static"Hello               "20
+static"Hello               "20
 
 julia> push!(StaticString["Hello"], "Bye")
 2-element Vector{StaticString}:
- Static"Hello"5
- Static"Bye"5
+ static"Hello"5
+ static"Bye"5
 ```
 
 ```@index
@@ -62,13 +62,13 @@ julia> push!(StaticString["Hello"], "Bye")
 StaticStrings
 AbstractStaticString
 StaticString
-@Static_str
+@static_str
 SubStaticString
-@SubStatic_str
+@substatic_str
 CStaticString
-@CStatic_str
+@cstatic_str
 PaddedStaticString
-@Padded_str
+@padded_str
 data
 pad
 ```
