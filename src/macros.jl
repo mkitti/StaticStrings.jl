@@ -41,7 +41,7 @@ julia> substatic"Як ти?"
 substatic"Як ти?"10
 
 julia> substatic"Як ти?"256
-subttatic"Як ти?"256
+substatic"Як ти?"256
 ```
 """
 macro substatic_str(ex)
