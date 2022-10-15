@@ -7,10 +7,10 @@ Optionally, specify the number of codeunits, `N`.
 # Examples
 ```jldoctest
 julia> static"großartig"
-Static"großartig"10
+static"großartig"10
 
 julia> static"verehrungswürdig"20
-Static"verehrungswürdig\\0\\0\\0"20
+static"verehrungswürdig\\0\\0\\0"20
 ```
 """
 macro static_str(ex)
@@ -77,7 +77,7 @@ cstatic"Orada mısın"13
 julia> cstatic"Orada mısın"25
 cstatic"Orada mısın"25
 
-julia> ccall(:jl_printf, Cint, (Ptr{Nothing}, Ptr{Cchar},), stdout isa IOContext ? stdout.io : stdout, CStatic"Orada mısın\\n"25)
+julia> ccall(:jl_printf, Cint, (Ptr{Nothing}, Ptr{Cchar},), stdout isa IOContext ? stdout.io : stdout, cstatic"Orada mısın\\n"25)
 Orada mısın
 14
 ```
