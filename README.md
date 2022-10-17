@@ -22,14 +22,14 @@ The concrete subtypes of `AbstractStaticString` are as follows.
 ```julia
 julia> using StaticStrings
 
-julia> Static"Hello world!"
-Static"Hello world!"12
+julia> static"Hello world!"
+static"Hello world!"12
 
-julia> Static"Hello world!" |> typeof
+julia> static"Hello world!" |> typeof
 StaticString{12}
 
-julia> CStatic"Hello world!"
-CStatic"Hello world!"12
+julia> cstatic"Hello world!"
+cstatic"Hello world!"12
 
 julia> ccall(:printf, Cint, (Ptr{Cchar},), cs)
 Hello world!
@@ -39,23 +39,23 @@ julia> ccall(:printf, Cint, (Ptr{CStaticString{13}},), Ref(cs))
 Hello world!
 13
 
-julia> Padded"Hello "20
+julia> padded"Hello "20
 Padded"Hello "20
 
-julia> ps = Padded"Hello "20
-Padded"Hello "20
+julia> ps = padded"Hello "20
+padded"Hello "20
 
 julia> StaticString(ps)
-Static"Hello               "20
+static"Hello               "20
 
 julia> strs = StaticString{5}["Hello"]
 1-element Vector{StaticString{5}}:
- Static"Hello"5
+ static"Hello"5
 
 julia> push!(strs, "Bye")
 2-element Vector{StaticString{5}}:
- Static"Hello"5
- Static"Bye"5
+ static"Hello"5
+ static"Bye"5
 ```
 
 ## Status

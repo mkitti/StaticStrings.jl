@@ -1,7 +1,7 @@
 
 """
     StaticString(data::NTuple{N,UInt8})
-    Static"string"N
+    static"string"N
 
 [`AbstractStaticString`](@ref) that stores codeunits in a NTuple{N,UInt8}.
 """
@@ -12,7 +12,7 @@ end
 """
     SubStaticString(data::NTuple{N, UInt8}, ind::Integer)
     SubStaticString(data::NTuple{N, UInt8}, ind::AbstractUnitRange)
-    SubStatic"string"N
+    substatic"string"N
 
 [`AbstractStaticString`](@ref) that stores up to `N` codeunits in a NTuple{N,UInt8}.
 The actual codeunits used are a subset indicated by an AbstractUnitRange.
@@ -34,7 +34,7 @@ SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = 
 
 """
     CStaticString(data::NTuple{N,UInt8})
-    CStatic"string"N
+    cstatic"string"N
 
 [`AbstractStaticString`](@ref) that stores codeunits in a NTuple{N,UInt8} but requires NUL codeunits to be at the end.
 
@@ -80,7 +80,7 @@ end
 
 """
     PaddedStaticString{N,PAD}(data::NTuple{N,UInt8})
-    Padded"string[PAD]"N
+    padded"string[PAD]"N
 
 [`AbstractStaticString`](@ref) that is padded with `PAD`.
 """
