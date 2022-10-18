@@ -8,6 +8,7 @@ using Test
     @test @cstatic_str("Hello", 10) == "Hello"
     @test @substatic_str("Hello", 10) == "Hello"
     @test @padded_str("Hello ", 10) == "Hello"
+    @test @substatic(static"Hello"[2:3]) == "el"
 end
 @static if VERSION ≥ v"1.7"
     include("post_julia_1_6/macros.jl")

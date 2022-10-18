@@ -19,6 +19,10 @@ The concrete subtypes of `AbstractStaticString` are as follows.
 
 ## Usage
 
+### Getting Started
+
+To start we create a basic static string of fixed size. A normal Julia `String` has variable size. "Hello world!" has 12 ASCII characters and thus 12 UTF-8 code units. Using the `static"Hello world!"` static string macro let's us easily construct the string of type `StaticString{12}`. Like a StaticArray from StaticArrays.jl, the UTF-8 codeunit capacity is specified in the type. Internally, `StaticString{12}` just wraps a `NTuple{12,UInt8}`. Below we see the string is printed as `static"Hello World!"12` where the trailing number indicates the number of code units. 
+
 ```julia
 julia> using StaticStrings
 
@@ -27,9 +31,28 @@ static"Hello world!"12
 
 julia> static"Hello world!" |> typeof
 StaticString{12}
+```
 
-julia> cstatic"Hello world!"
-cstatic"Hello world!"12
+The number of code units can also be explicitly specified. If the specified length is longer than needed, additional NUL bytes will be appended. Printing the string will stop at the first NUL byte.
+
+```julia
+julia> static"Hello world!"12
+static"Hello world!"12
+
+julia> static"Hello world!"31
+static"Hello world!\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"31
+
+julia> print(static"Hello world!"31, static" Bye!")
+Hello world! Bye!
+```
+
+### Calling C code
+
+One particular application for these fixed length strings is calling C code. The `CStaticString` provides a variant that ensures a terminal NUL byte and ensures that no terminal NUL bytes are contained in the string.
+
+```julia
+julia> cs = cstatic"Hello world!\n"
+cstatic"Hello world!"13
 
 julia> ccall(:printf, Cint, (Ptr{Cchar},), cs)
 Hello world!
@@ -38,24 +61,47 @@ Hello world!
 julia> ccall(:printf, Cint, (Ptr{CStaticString{13}},), Ref(cs))
 Hello world!
 13
+```
 
-julia> padded"Hello "20
-Padded"Hello "20
+### Changing the padding
 
+Another variant is the `PaddedStaticString`. The last code unit in the provided string is used as padding. We can see the effect of the padding by converting it to a `StaticString`.
+
+```julia
 julia> ps = padded"Hello "20
 padded"Hello "20
 
 julia> StaticString(ps)
 static"Hello               "20
+```
 
-julia> strs = StaticString{5}["Hello"]
-1-element Vector{StaticString{5}}:
- static"Hello"5
+### Compact Array Layout
 
-julia> push!(strs, "Bye")
+One advantage of `StaticString` over `String` is that the fixed size allows for a simple and compact array layout. Unlike InlineStrings.jl, the strings can be any fixed size.
+
+```julia
+julia> strings = StaticString{5}["Hello", "Bye"]
 2-element Vector{StaticString{5}}:
  static"Hello"5
- static"Bye"5
+ static"Bye\0\0"5
+
+julia> push!(strings, "Hola")
+3-element Vector{StaticString{5}}:
+ static"Hello"5
+ static"Bye\0\0"5
+ static"Hola\0"5
+
+julia> unsafe_load(pointer(strings,1))
+static"Hello"5
+
+julia> unsafe_load(pointer(strings,2))
+static"Bye\0\0"5
+
+julia> unsafe_load(pointer(strings,3))
+static"Hola\0"5
+
+julia> sizeof(strings)
+15
 ```
 
 ## Status
