@@ -24,6 +24,7 @@ using Compat
 
 export StaticString, SubStaticString, CStaticString, PaddedStaticString
 export @static_str, @cstatic_str, @padded_str, @substatic_str
+export @substatic
 
 include("AbstractStaticString.jl")
 include("types.jl")

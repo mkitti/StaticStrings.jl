@@ -121,4 +121,13 @@ macro padded_str(ex, N)
 end
 _macroname(::Type{<:PaddedStaticString}) = "padded"
 
+"""
+    @substatic string[a:b]
 
+Create a [`SubStaticString`](@ref) by selecting a range of codeunits. This differs
+from normal indexing which occurs on characters.
+"""
+macro substatic(ex)
+    @assert(ex.head == :ref, "Expression is of type $(ex.head) rather than :ref")
+    :(SubStaticString($(esc(ex.args[1])), $(esc(ex.args[2]))))
+end
