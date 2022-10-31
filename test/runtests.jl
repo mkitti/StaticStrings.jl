@@ -7,6 +7,7 @@ using Test
     include("ccall.jl")
     include("show.jl")
     include("macros.jl")
+    include("io.jl")
     @static if VERSION ≥ v"1.6"
         include("inlinestrings.jl")
     end

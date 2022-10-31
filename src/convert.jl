@@ -59,6 +59,8 @@ Base.convert(::Type{Tuple}, nstring::AbstractStaticString) = Tuple(nstring)
 Base.convert(::Type{T}, nstring::AbstractStaticString) where {T <: NTuple{N,UInt8} where N} = data(nstring)
 Base.convert(::Type{NTuple{N,UInt8}}, nstring::AbstractStaticString{N}) where N = data(nstring)
 
+Base.convert(::Type{T}, t::NTuple{N, UInt8}) where {N, T <: AbstractStaticString{N}} = T(t)
+
 # Unsafe conversions
 
 function Base.cconvert(::Type{Ptr{UInt8}}, nstring::NS) where NS <: AbstractStaticString
