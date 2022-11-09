@@ -33,5 +33,6 @@ include("strings.jl")
 include("convert.jl")
 include("macros.jl")
 include("show.jl")
+include("io.jl")
 
 end # module NStrings
