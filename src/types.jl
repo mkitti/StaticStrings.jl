@@ -7,6 +7,10 @@
 """
 struct StaticString{N} <: AbstractStaticString{N}
     data::NTuple{N,UInt8}
+    StaticString{0}(data::Tuple{}) = new{0}(data)
+    StaticString{N}(data::NTuple{N,UInt8}) where N = new{N}(data)
+    StaticString(data::NTuple{N,UInt8}) where N = new{N}(data)
+    StaticString(data::Tuple{}) = new{0}(data)
 end
 
 """
@@ -24,11 +28,20 @@ struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
         ind ⊆ eachindex(data) || ArgumentError("$ind is not a subset of $(eachindex(data)), the indices of data")
         return new{N, R}(data, ind)
     end
+    function SubStaticString{N,R}(data::AbstractString, ind::R) where {N,R <: AbstractUnitRange}
+        return SubStaticString{N, R}(StaticString{N}(data), ind)
+    end
+
+    function SubStaticString{N,R}(ass::AbstractStaticString, ind::R) where {N,R <: AbstractUnitRange}
+        return SubStaticString{N, R}(data(ass), ind)
+    end
     SubStaticString(data::NTuple{N,UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N,R}(data, ind)
 end
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
 SubStaticString(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
+SubStaticString(data::Tuple{}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
+SubStaticString{0}(data::Tuple{}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
 @inline Base.ncodeunits(s::SubStaticString) = length(s.ind)
 @inline Base.codeunits(s::SubStaticString) = s.data[s.ind]
 
@@ -51,6 +64,9 @@ struct CStaticString{N} <: AbstractStaticString{N}
         _data = ntuple(i->i <= M ? data[i] : 0x0, Val(N))
         return CStaticString(_data)
     end
+    CStaticString{N}(::Tuple{}) where {N} = new{N}(ntuple(i->0x0, Val(N)), 0x0)
+    CStaticString{0}(::Tuple{}) = new{0}((), 0x0)
+    CStaticString(::Tuple{}) = new{0}((), 0x0)
 end
 function _check_for_nuls(data::NTuple{N,UInt8}) where N
     first_nul = 0
@@ -96,8 +112,11 @@ struct PaddedStaticString{N,PAD} <: AbstractStaticString{N}
         _data = ntuple(i->i <= M ? data[i] : UInt8(PAD), Val(N))
         return new{N,UInt8(PAD)}(_data)
     end
+    PaddedStaticString{N,PAD}(data::Tuple{}) where {N,PAD} = new{N,UInt8(PAD)}(ntuple(i->UInt8(PAD), Val(N)))
+    PaddedStaticString{N,PAD}(ass::AbstractStaticString) where {N,PAD} = PaddedStaticString{N,PAD}(data(ass))
     PaddedStaticString{N}(data::AbstractString) where N = PaddedStaticString{N,0x0}(data)
     PaddedStaticString{N}(data::NTuple{M,UInt8} where M) where N = PaddedStaticString{N,0x0}(data)
+    PaddedStaticString{N}(data::Tuple{}) where N = PaddedStaticString{N,0x0}(data)
 end
 
 """
@@ -115,3 +134,5 @@ function Base.ncodeunits(string::PaddedStaticString{N,PAD}) where {N,PAD}
         return pos
     end
 end
+
+const StaticStringSubTypes = (StaticString, SubStaticString, CStaticString, PaddedStaticString)

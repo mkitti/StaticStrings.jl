@@ -30,7 +30,10 @@ function StaticString(s::AbstractString)
         throw(ArgumentError("Only AbstractStrings with UInt8 codeunits can be converted to StaticString"))
     return StaticString(NTuple{ncodeunits(s),UInt8}(codeunits(s)))
 end
-function StaticString{N}(s::AbstractString) where N 
+StaticString{N}(s::AbstractString) where N = _abstract_string_to_static_string(s, N)
+StaticString{N}(s::AbstractStaticString) where N = _abstract_string_to_static_string(s, N)
+
+function _abstract_string_to_static_string(s::AbstractString, N)
     nc = ncodeunits(s)
     codeunit(s) == UInt8 ||
         throw(ArgumentError("Only AbstractStrings with UInt8 codeunits can be converted to StaticString"))
@@ -71,11 +74,11 @@ function Base.cconvert(::Type{Ptr{Int8}}, nstring::NS) where NS <: AbstractStati
     convert(Ref{NS}, nstring)
 end
 
-function Base.unsafe_convert(::Type{Ptr{UInt8}}, ref_s::Ref{<: AbstractStaticString})
+function Base.unsafe_convert(::Type{Ptr{UInt8}}, ref_s::Base.RefValue{<: AbstractStaticString})
     return Ptr{UInt8}(pointer_from_objref(ref_s))
 end
 
-function Base.unsafe_convert(::Type{Ptr{Int8}}, ref_s::Ref{<: AbstractStaticString})
+function Base.unsafe_convert(::Type{Ptr{Int8}}, ref_s::Base.RefValue{<: AbstractStaticString})
     return Ptr{Int8}(pointer_from_objref(ref_s))
 end
 
