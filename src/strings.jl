@@ -134,6 +134,12 @@ Base.getindex(s::AbstractStaticString, r::AbstractUnitRange{<:Integer}) = s[Int(
     GC.@preserve rs ss unsafe_copyto!(pointer(ss), Ptr{UInt8}(pointer_from_objref(rs)) + i-1, n)
     return ss
 end
+if VERSION <= v"1.8"
+    # Remove ambiguity
+    @inline function Base.getindex(s::AbstractStaticString, r::UnitRange{<:Integer})
+        Base.getindex(s, UnitRange{Int}(r))
+    end
+end
 
 Base.length(s::AbstractStaticString{N}) where N = length_continued(s, 1, ncodeunits(s), ncodeunits(s))
 
