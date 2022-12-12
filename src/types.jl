@@ -8,6 +8,7 @@
 struct StaticString{N} <: AbstractStaticString{N}
     data::NTuple{N,UInt8}
     StaticString{0}(data::Tuple{}=()) = new{0}(data)
+    StaticString{0}(data::Tuple{}) = new{0}(data)
     StaticString{N}(data::NTuple{N,UInt8}) where N = new{N}(data)
     StaticString(data::NTuple{N,UInt8}) where N = new{N}(data)
     StaticString(data::Tuple{}) = new{0}(data)
@@ -66,9 +67,15 @@ struct CStaticString{N} <: AbstractStaticString{N}
         _data = ntuple(i->i <= M ? data[i] : 0x0, Val(N))
         return CStaticString(_data)
     end
+<<<<<<< HEAD
     CStaticString{N}(::Tuple{}=()) where {N} = new{N}(ntuple(i->0x0, Val(N)), 0x0)
     CStaticString{0}(::Tuple{}=()) = new{0}((), 0x0)
     CStaticString(::Tuple{}=()) = new{0}((), 0x0)
+=======
+    CStaticString{N}(::Tuple{}) where {N} = new{N}(ntuple(i->0x0, Val(N)), 0x0)
+    CStaticString{0}(::Tuple{}) = new{0}((), 0x0)
+    CStaticString(::Tuple{}) = new{0}((), 0x0)
+>>>>>>> ff3d175 (Eliminate and test for amibguities)
 end
 function _check_for_nuls(data::NTuple{N,UInt8}) where N
     first_nul = 0
