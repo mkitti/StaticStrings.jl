@@ -5,7 +5,7 @@ Represents a string of `N` codeunits
 """
 abstract type AbstractStaticString{N} <: AbstractString end
 
-(ASS::Type{<:AbstractStaticString})(data::NTuple{N,Int8}) where N = ASS(UInt8.(data))
+(ASS::Type{<:AbstractStaticString})(data::NTuple{N,Int8}) where N = ASS{N}(UInt8.(data))
 (ASS::Type{<:AbstractStaticString{N}})(data::NTuple{N,Int8}) where N = ASS(UInt8.(data))
 
 """
