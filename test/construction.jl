@@ -20,6 +20,9 @@ using Test
     @test static"สวัสดีครับ" == "สวัสดีครับ"
     @test cstatic"สวัสดีครับ" == "สวัสดีครับ"
     @test substatic"สวัสดีครับ" == "สวัสดีครับ"
+    @test StaticString{0}() == ""
+    @test SubStaticString{0}() == ""
+    @test CStaticString{0}() == ""
 end
 @static if VERSION ≥ v"1.6"
     include("post_julia_1_6/construction.jl")
