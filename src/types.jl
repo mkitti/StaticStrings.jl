@@ -7,7 +7,7 @@
 """
 struct StaticString{N} <: AbstractStaticString{N}
     data::NTuple{N,UInt8}
-    StaticString{0}(data::Tuple{}) = new{0}(data)
+    StaticString{0}(data::Tuple{}=()) = new{0}(data)
     StaticString{N}(data::NTuple{N,UInt8}) where N = new{N}(data)
     StaticString(data::NTuple{N,UInt8}) where N = new{N}(data)
     StaticString(data::Tuple{}) = new{0}(data)
@@ -39,9 +39,9 @@ struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
 end
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
 SubStaticString(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
-SubStaticString(data::Tuple{}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
+SubStaticString(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString(data, Base.OneTo(ind))
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
-SubStaticString{0}(data::Tuple{}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
+SubStaticString{0}(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString{0}(data, Base.OneTo(ind))
 @inline Base.ncodeunits(s::SubStaticString) = length(s.ind)
 @inline Base.codeunits(s::SubStaticString) = s.data[s.ind]
 
@@ -64,9 +64,9 @@ struct CStaticString{N} <: AbstractStaticString{N}
         _data = ntuple(i->i <= M ? data[i] : 0x0, Val(N))
         return CStaticString(_data)
     end
-    CStaticString{N}(::Tuple{}) where {N} = new{N}(ntuple(i->0x0, Val(N)), 0x0)
-    CStaticString{0}(::Tuple{}) = new{0}((), 0x0)
-    CStaticString(::Tuple{}) = new{0}((), 0x0)
+    CStaticString{N}(::Tuple{}=()) where {N} = new{N}(ntuple(i->0x0, Val(N)), 0x0)
+    CStaticString{0}(::Tuple{}=()) = new{0}((), 0x0)
+    CStaticString(::Tuple{}=()) = new{0}((), 0x0)
 end
 function _check_for_nuls(data::NTuple{N,UInt8}) where N
     first_nul = 0
