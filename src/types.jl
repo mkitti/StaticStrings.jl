@@ -8,7 +8,6 @@
 struct StaticString{N} <: AbstractStaticString{N}
     data::NTuple{N,UInt8}
     StaticString{0}(data::Tuple{}=()) = new{0}(data)
-    StaticString{0}(data::Tuple{}) = new{0}(data)
     StaticString{N}(data::NTuple{N,UInt8}) where N = new{N}(data)
     StaticString(data::NTuple{N,UInt8}) where N = new{N}(data)
     StaticString(data::Tuple{}) = new{0}(data)
