@@ -15,6 +15,24 @@ struct StaticString{N} <: AbstractStaticString{N}
 end
 
 """
+    WStaticString(data::NTuple{N,UInt16})
+    wstatic"string"N
+
+[`AbstractStaticString`](@ref) that stores codeunits in a NTuple{N,UInt16}
+"""
+struct WStaticString{N} <: AbstractStaticString{N}
+    data::NTuple{N,UInt16}
+    WStaticString{0}(data::Tuple{}) = new{0}(data)
+    WStaticString{N}(data::NTuple{N,UInt16}) where N = new{N}(data)
+    WStaticString(data::NTuple{N,UInt16}) where N = new{N}(data)
+    WStaticString(data::Tuple{}) = new{0}(data)
+end
+WStaticString(data::NTuple{N,UInt8}) where N = WStaticString(_transcode(UInt16, data))
+WStaticString{N}(data::NTuple{M,UInt8}) where {N,M} = WStaticString{N}(_transcode(UInt16, data))
+Base.codeunit(::WStaticString) = UInt16
+_transcode(::Type{T}, t::NTuple{N, V}) where {T,N,V} = (transcode(T, V[t...])...,)
+
+"""
     SubStaticString(data::NTuple{N, UInt8}, ind::Integer)
     SubStaticString(data::NTuple{N, UInt8}, ind::AbstractUnitRange)
     substatic"string"N
@@ -40,9 +58,15 @@ struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
 end
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
 SubStaticString(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
+<<<<<<< HEAD
 SubStaticString(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString(data, Base.OneTo(ind))
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
 SubStaticString{0}(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString{0}(data, Base.OneTo(ind))
+=======
+SubStaticString(data::Tuple{}, ind::Integer=length(data)) = SubStaticString(data, Base.OneTo(ind))
+SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
+SubStaticString{0}(data::Tuple{}, ind::Integer=length(data)) = SubStaticString{0}(data, Base.OneTo(ind))
+>>>>>>> 5028ff9 (Add wstatic prototype)
 @inline Base.ncodeunits(s::SubStaticString) = length(s.ind)
 @inline Base.codeunits(s::SubStaticString) = s.data[s.ind]
 
@@ -67,15 +91,9 @@ struct CStaticString{N} <: AbstractStaticString{N}
         _data = ntuple(i->i <= M ? data[i] : 0x0, Val(N))
         return CStaticString(_data)
     end
-<<<<<<< HEAD
     CStaticString{N}(::Tuple{}=()) where {N} = new{N}(ntuple(i->0x0, Val(N)), 0x0)
     CStaticString{0}(::Tuple{}=()) = new{0}((), 0x0)
     CStaticString(::Tuple{}=()) = new{0}((), 0x0)
-=======
-    CStaticString{N}(::Tuple{}) where {N} = new{N}(ntuple(i->0x0, Val(N)), 0x0)
-    CStaticString{0}(::Tuple{}) = new{0}((), 0x0)
-    CStaticString(::Tuple{}) = new{0}((), 0x0)
->>>>>>> ff3d175 (Eliminate and test for amibguities)
 end
 function _check_for_nuls(data::NTuple{N,UInt8}) where N
     first_nul = 0
