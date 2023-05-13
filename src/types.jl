@@ -59,15 +59,9 @@ struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
 end
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
 SubStaticString(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
-<<<<<<< HEAD
 SubStaticString(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString(data, Base.OneTo(ind))
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
 SubStaticString{0}(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString{0}(data, Base.OneTo(ind))
-=======
-SubStaticString(data::Tuple{}, ind::Integer=length(data)) = SubStaticString(data, Base.OneTo(ind))
-SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
-SubStaticString{0}(data::Tuple{}, ind::Integer=length(data)) = SubStaticString{0}(data, Base.OneTo(ind))
->>>>>>> 5028ff9 (Add wstatic prototype)
 @inline Base.ncodeunits(s::SubStaticString) = length(s.ind)
 @inline Base.codeunits(s::SubStaticString) = s.data[s.ind]
 
