@@ -21,7 +21,9 @@ using Test
     sss = @substatic(static"Hello"[3:4])
     substr = convert(SubString, sss)
     @test sss == substr
+    @test substr.offset == 2
     @test substr.ncodeunits == 2
+    @test typeof(substr) == SubString{StaticString{5}}
     sss2 = convert(SubStaticString, substr)
     @test sss == sss2
 end
