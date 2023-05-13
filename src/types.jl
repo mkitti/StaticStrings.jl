@@ -29,6 +29,7 @@ struct WStaticString{N} <: AbstractStaticString{N}
 end
 WStaticString(data::NTuple{N,UInt8}) where N = WStaticString(_transcode(UInt16, data))
 WStaticString{N}(data::NTuple{M,UInt8}) where {N,M} = WStaticString{N}(_transcode(UInt16, data))
+WStaticString{N}(::Tuple{}) where N = WStaticString{N}(ntuple(i->0x0000,Val(N)))
 Base.codeunit(::WStaticString) = UInt16
 _transcode(::Type{T}, t::NTuple{N, V}) where {T,N,V} = (transcode(T, V[t...])...,)
 
