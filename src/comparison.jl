@@ -10,7 +10,7 @@ function _memcmp(a::AbstractStaticString, b::AbstractStaticString)
 end
 
 function Base.:(==)(a::AbstractStaticString, b::AbstractStaticString)
-    data(a) == data(b) && return true
+    codeunits(a) == codeunits(b) && return true
     al = ncodeunits(a)
     return al == ncodeunits(b) && 0 == _memcmp(a, b, al)
 end

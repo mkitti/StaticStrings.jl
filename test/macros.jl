@@ -9,6 +9,8 @@ using Test
     @test @substatic_str("Hello", 10) == "Hello"
     @test @padded_str("Hello ", 10) == "Hello"
     @test @substatic(static"Hello"[2:3]) == "el"
+    @test @substatic(static"Hello"[2:3]) != @substatic(static"Hello"[1:3])
+    @test @substatic(static"Hello"[3:4]) == static"ll"
 end
 @static if VERSION ≥ v"1.7"
     include("post_julia_1_6/macros.jl")
