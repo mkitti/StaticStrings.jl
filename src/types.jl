@@ -51,6 +51,8 @@ SubStaticString{0}(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticStrin
 
 [`AbstractStaticString`](@ref) that stores codeunits in a NTuple{N,UInt8} but requires NUL codeunits to be at the end.
 
+Converting to a `String` will include null bytes. Use `strip` to get a `SubString` without the null bytes.
+
 N.B. The size of a `CStaticString{N}` is `N+1` bytes.
 """
 struct CStaticString{N} <: AbstractStaticString{N}
@@ -134,5 +136,6 @@ function Base.ncodeunits(string::PaddedStaticString{N,PAD}) where {N,PAD}
         return pos
     end
 end
+Base.codeunits(string::PaddedStaticString) = string.data[1:ncodeunits(string)]
 
 const StaticStringSubTypes = (StaticString, SubStaticString, CStaticString, PaddedStaticString)

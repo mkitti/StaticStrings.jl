@@ -4,6 +4,7 @@ using Test
 @testset "StaticStrings.jl" begin
     include("construction.jl")
     include("convert.jl")
+    include("comparison.jl")
     include("ccall.jl")
     include("show.jl")
     include("macros.jl")
