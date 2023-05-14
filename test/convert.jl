@@ -18,4 +18,10 @@ using Test
         ptr = Base.unsafe_convert(Ptr{Cchar}, hello_world0c)
         @test Base.unsafe_string(ptr) == "hello world!"
     end
+    sss = @substatic(static"Hello"[3:4])
+    substr = convert(SubString, sss)
+    @test sss == substr
+    @test substr.ncodeunits == 2
+    sss2 = convert(SubStaticString, substr)
+    @test sss == sss2
 end

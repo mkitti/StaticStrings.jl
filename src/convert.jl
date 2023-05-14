@@ -5,6 +5,7 @@ StaticString{N}(s::AbstractStaticString{N}) where N = StaticString{N}(data(s))
 Base.convert(::Type{StaticString{N}}, s::AbstractStaticString{N}) where N = StaticString(s)
 
 (ass::Type{ASS})(s::AbstractStaticString, args...) where {ASS <: AbstractStaticString} = ass(data(s), args...)
+(ass::Type{ASS})(s::AbstractStaticString, args...) where {N, ASS <: AbstractStaticString{N}} = ass(data(s), args...)
 (ass::Type{ASS})(s::AbstractStaticString{N}, args...) where {N, ASS <: AbstractStaticString{N}} = ass(data(s), args...)
 SubStaticString{N}(s::AbstractStaticString, args...) where N = SubStaticString{N}(data(s), args...)
 SubStaticString{N}(s::AbstractStaticString{N}, args...) where N = SubStaticString{N}(data(s), args...)

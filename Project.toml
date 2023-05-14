@@ -1,7 +1,7 @@
 name = "StaticStrings"
 uuid = "4db0a0c5-418a-4e1d-8806-cb305fe13294"
 authors = ["Mark Kittisopikul <markkitt@gmail.com> and contributors"]
-version = "0.2.3"
+version = "0.2.4"
 
 [deps]
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
