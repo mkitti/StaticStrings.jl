@@ -14,6 +14,25 @@ struct StaticString{N} <: AbstractStaticString{N}
 end
 
 """
+    WStaticString(data::NTuple{N,UInt16})
+    wstatic"string"N
+
+[`AbstractStaticString`](@ref) that stores codeunits in a NTuple{N,UInt16}
+"""
+struct WStaticString{N} <: AbstractStaticString{N}
+    data::NTuple{N,UInt16}
+    WStaticString{0}(data::Tuple{}) = new{0}(data)
+    WStaticString{N}(data::NTuple{N,UInt16}) where N = new{N}(data)
+    WStaticString(data::NTuple{N,UInt16}) where N = new{N}(data)
+    WStaticString(data::Tuple{}) = new{0}(data)
+end
+WStaticString(data::NTuple{N,UInt8}) where N = WStaticString(_transcode(UInt16, data))
+WStaticString{N}(data::NTuple{M,UInt8}) where {N,M} = WStaticString{N}(_transcode(UInt16, data))
+WStaticString{N}(::Tuple{}) where N = WStaticString{N}(ntuple(i->0x0000,Val(N)))
+Base.codeunit(::WStaticString) = UInt16
+_transcode(::Type{T}, t::NTuple{N, V}) where {T,N,V} = (transcode(T, V[t...])...,)
+
+"""
     SubStaticString(data::NTuple{N, UInt8}, ind::Integer)
     SubStaticString(data::NTuple{N, UInt8}, ind::AbstractUnitRange)
     substatic"string"N

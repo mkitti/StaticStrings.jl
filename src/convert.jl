@@ -86,3 +86,9 @@ end
 function Base.cconvert(::Type{Cstring}, nstring::AbstractStaticString)
     return String(nstring)
 end
+
+# SubString and SubStaticString
+Base.convert(::Type{SubString{StaticString{N}}}, sss::SubStaticString{N}) where {N} = SubString{StaticString{N}}(StaticString{N}(sss.data), sss.ind)
+Base.convert(::Type{SubString}, sss::SubStaticString{N}) where {N} = SubString(StaticString{N}(sss.data), sss.ind)
+Base.convert(::Type{T}, substr::SubString{ASS}) where {T <: SubStaticString, ASS <: AbstractStaticString} =
+    T(substr.string, substr.offset+1:substr.offset+substr.ncodeunits)
