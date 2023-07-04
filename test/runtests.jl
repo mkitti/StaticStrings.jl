@@ -10,6 +10,7 @@ using Test
     include("macros.jl")
     include("io.jl")
     include("ambiguities.jl")
+    include("AbstractStaticString.jl")
     @static if VERSION ≥ v"1.6"
         include("inlinestrings.jl")
     end
