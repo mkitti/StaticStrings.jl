@@ -17,8 +17,8 @@ PaddedStaticString{N}(s::AbstractStaticString{N}) where N = PaddedStaticString{N
 # Thank you to Steven G. Johnson @stevengj
 # https://discourse.julialang.org/t/convert-a-ntuple-n-uint8-to-a-string-and-back/87720/2?u=mkitti
 function Base.String(nstring::AbstractStaticString{N}) where {N}
-    b = Base.StringVector(N)
-    return String(b .= data(nstring))
+    n = something(findfirst(iszero, data(nstring)), N + 1) - 1
+    return String(view(collect(data(nstring)), 1:n))
 end
 function Base.convert(::Type{String}, nstring::AbstractStaticString{N}) where N
     return String(nstring)
