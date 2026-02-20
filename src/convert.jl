@@ -20,9 +20,6 @@ function Base.String(nstring::AbstractStaticString{N}) where {N}
     b = Base.StringVector(N)
     return String(b .= data(nstring))
 end
-function Base.convert(::Type{String}, nstring::AbstractStaticString{N}) where N
-    return String(nstring)
-end
 
 # Convert [Abstract]String to AbstractStaticStrings
 

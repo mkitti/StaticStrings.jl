@@ -14,10 +14,10 @@ function Base.read(io::IO, ::Type{CStaticString}; sizehint=255)
     end
     return CStaticString((buffer...,))
 end
-function Base.write(io::IO, ass::T) where {N, T<: AbstractStaticString{N}}
-    sum(codeunits(ass)) do byte
-        write(io, byte)
-    end
+
+@static if isdefined(Base, :AnnotatedIOBuffer)
+    Base.write(io::Base.AnnotatedIOBuffer, cs::CStaticString{N}) where N =
+        invoke(write, Tuple{IO, CStaticString{N}}, io, cs)
 end
 function Base.write(io::IO, cs::CStaticString{N}) where N
     foreach(codeunits(cs)) do byte

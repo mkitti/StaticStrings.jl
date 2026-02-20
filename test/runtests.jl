@@ -11,10 +11,6 @@ using Test
     include("io.jl")
     include("ambiguities.jl")
     include("AbstractStaticString.jl")
-    @static if VERSION ≥ v"1.6"
-        include("inlinestrings.jl")
-    end
-    @static if VERSION ≥ v"1.7"
-        include("statictools.jl")
-    end
+    include("inlinestrings.jl")
+    include("statictools.jl")
 end
