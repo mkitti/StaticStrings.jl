@@ -2,6 +2,34 @@ using StaticStrings
 using StaticStrings: data
 using Test
 
+construct_substatic_strings!(output, bytes, ranges) =
+    map!(range -> SubStaticString(bytes, range), output, ranges)
+
+@testset "SubStaticString range validation" begin
+    text = "xα\0y"
+    bytes = text |> codeunits |> Tuple
+    for range in (0:1, -1:0, 5:6, Base.OneTo(UInt8(6)), UInt8(4):UInt8(6))
+        @test_throws ArgumentError SubStaticString(bytes, range)
+    end
+    @test SubStaticString{5}(bytes, 2:4).ind === 2:4
+    @test_throws ArgumentError SubStaticString(bytes, 6)
+    @test_throws ArgumentError SubStaticString{5}(StaticString(bytes), UInt8(6))
+    @test_throws ArgumentError SubStaticString{5,UnitRange{Int}}(text, 1:6)
+    @test SubStaticString((), 1:0).ind === 1:0
+    @test_throws ArgumentError SubStaticString((), 1:1)
+
+    for ranges in ([1:0, 1:5, 2:4, 6:5, 99:98],
+                   [UInt8(2):stop for stop in UInt8(1):UInt8(5)],
+                   [Base.OneTo(stop) for stop in UInt8(0):UInt8(5)])
+        output = Vector{SubStaticString{5,eltype(ranges)}}(undef, length(ranges))
+        construct_substatic_strings!(output, bytes, ranges)
+        @test (@allocated construct_substatic_strings!(output, bytes, ranges)) == 0
+        @test map(string -> string.ind, output) == ranges
+        @test all(string -> data(string) === bytes, output)
+        @test ncodeunits.(output) == length.(ranges)
+    end
+end
+
 @testset "Constructon" begin
     hello = StaticString("hello")
     @test hello == "hello"
