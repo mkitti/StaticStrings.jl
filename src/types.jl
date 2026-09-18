@@ -50,6 +50,14 @@ SubStaticString{0}(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticStrin
 @inline Base.ncodeunits(s::SubStaticString) = length(s.ind)
 @inline Base.codeunits(s::SubStaticString) = s.data[s.ind]
 
+# Base forwards other Integer indices to Int, matching the AbstractStaticString method.
+Base.@propagate_inbounds function Base.codeunit(s::SubStaticString, index::Int)
+    @boundscheck 1 <= index <= ncodeunits(s) || throw_bounds_error(s, index)
+    return @inbounds s.data[first(s.ind) + index - 1]
+end
+
+@noinline throw_bounds_error(s, index) = throw(BoundsError(s, index))
+
 """
     CStaticString(data::NTuple{N,UInt8})
     cstatic"string"N
