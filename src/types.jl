@@ -25,7 +25,7 @@ struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
     data::NTuple{N, UInt8}
     ind::R
     function SubStaticString{N,R}(data, ind::R) where {N,R <: AbstractUnitRange}
-        ind ⊆ eachindex(data) || _throw_invalid_range(ind, eachindex(data))
+        ind ⊆ eachindex(data) || throw_invalid_range(ind, eachindex(data))
         return new{N, R}(data, ind)
     end
     function SubStaticString{N,R}(data::AbstractString, ind::R) where {N,R <: AbstractUnitRange}
@@ -39,7 +39,7 @@ struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
 end
 
 # Keep error-message allocation and GC frame setup off the valid constructor path.
-@noinline _throw_invalid_range(ind::AbstractUnitRange, indices::AbstractUnitRange) =
+@noinline throw_invalid_range(ind::AbstractUnitRange, indices::AbstractUnitRange) =
     throw(ArgumentError("$ind is not a subset of $indices, the indices of data"))
 
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
