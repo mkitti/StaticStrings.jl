@@ -1,6 +1,34 @@
 using StaticStrings
 using Test
 
+@testset "Full backing storage to String" begin
+    for (string, expected) in ((StaticString(()), ""), (CStaticString(), ""),
+                               (PaddedStaticString{0,0x00}(()), ""),
+                               (StaticString("a\0b"), "a\0b"),
+                               (CStaticString("abc"), "abc"),
+                               (CStaticString("abc\0"), "abc\0"),
+                               (PaddedStaticString{5,0x00}("abc"), "abc\0\0"),
+                               (PaddedStaticString{5,0xff}("abc"), "abc\xff\xff"))
+        @test String(string) == expected
+        @test convert(String, string) == expected
+    end
+end
+
+@testset "SubStaticString to String" begin
+    bytes = "xα\0y" |> codeunits |> Tuple
+    for ranges in ([1:stop for stop in 0:5], [2:stop for stop in 1:5], [99:98],
+                   [UInt8(2):stop for stop in UInt8(1):UInt8(5)],
+                   [Base.OneTo(stop) for stop in UInt8(0):UInt8(5)])
+        for range in ranges
+            string = SubStaticString(bytes, range)
+            expected = UInt8[bytes[index] for index in range]
+            @test collect(codeunits(String(string))) == expected
+            @test convert(String, string) == String(expected)
+        end
+    end
+    @test String(SubStaticString()) == ""
+end
+
 @testset "Conversion" begin
     hello_world = StaticString("hello world!")
     @test hello_world == "hello world!"
