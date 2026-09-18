@@ -67,4 +67,13 @@ end
     @test read(io, StaticString{6}) == static"World\0"
     @test read(io, StaticString{5}) == static"Hola "
     @test read(io, StaticString{6}) == static"Mundo\0"
+    text = SubStaticString("xα\0y", 2:5)
+    io = IOBuffer(; maxsize=2)
+    @test write(io, text) == 2
+    @test take!(io) == collect(codeunits("α"))
+    @static if isdefined(Base, :AnnotatedIOBuffer)
+        io = IOBuffer()
+        @test write(Base.AnnotatedIOBuffer(io), text) == 4
+        @test take!(io) == collect(codeunits("α\0y"))
+    end
 end
