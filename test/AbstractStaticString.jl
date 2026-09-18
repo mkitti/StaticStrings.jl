@@ -37,3 +37,13 @@ copy_substatic_codeunits!(output, string::SubStaticString) =
     @test codeunit(string, UInt8(2)) == 0xb1
     @test collect(string) == ['α', '\0']
 end
+
+@testset "PaddedStaticString codeunit" begin
+    string = PaddedStaticString{8,0xff}("xα\0y")
+    @test codeunit(string, UInt8(3)) == 0xb1
+    for index in (typemin(Int), -1, 0, ncodeunits(string) + 1, typemax(Int))
+        @test_throws BoundsError codeunit(string, index)
+    end
+    @test_throws BoundsError codeunit(PaddedStaticString{0,0xff}(()), 1)
+    @test_throws BoundsError codeunit(PaddedStaticString{5,0xff}(()), 1)
+end
