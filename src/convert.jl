@@ -16,15 +16,12 @@ PaddedStaticString{N}(s::AbstractStaticString{N}) where N = PaddedStaticString{N
 
 # Thank you to Steven G. Johnson @stevengj
 # https://discourse.julialang.org/t/convert-a-ntuple-n-uint8-to-a-string-and-back/87720/2?u=mkitti
-function Base.String(nstring::AbstractStaticString{N}) where {N}
-    b = Base.StringVector(N)
-    return String(b .= data(nstring))
-end
-
-function Base.String(string::SubStaticString)
-    b = Base.StringVector(ncodeunits(string))
-    for index in eachindex(b)
-        @inbounds b[index] = codeunit(string, index)
+function Base.String(string::AbstractStaticString{N}) where N
+    indices = string isa SubStaticString ? string.ind : Base.OneTo(N)
+    b = Base.StringVector(length(indices))
+    # `eachindex` is slower in Julia 1.13, so correct the index manually on access.
+    for index in 1:length(indices)
+        @inbounds b[index] = data(string)[first(indices) + index - 1]
     end
     return String(b)
 end
