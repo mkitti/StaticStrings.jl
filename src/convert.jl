@@ -21,6 +21,14 @@ function Base.String(nstring::AbstractStaticString{N}) where {N}
     return String(b .= data(nstring))
 end
 
+function Base.String(string::SubStaticString)
+    b = Base.StringVector(ncodeunits(string))
+    for index in eachindex(b)
+        @inbounds b[index] = codeunit(string, index)
+    end
+    return String(b)
+end
+
 # Convert [Abstract]String to AbstractStaticStrings
 
 function StaticString(s::AbstractString)

@@ -1,6 +1,21 @@
 using StaticStrings
 using Test
 
+@testset "SubStaticString to String" begin
+    bytes = "xα\0y" |> codeunits |> Tuple
+    for ranges in ([1:stop for stop in 0:5], [2:stop for stop in 1:5], [99:98],
+                   [UInt8(2):stop for stop in UInt8(1):UInt8(5)],
+                   [Base.OneTo(stop) for stop in UInt8(0):UInt8(5)])
+        for range in ranges
+            string = SubStaticString(bytes, range)
+            expected = UInt8[bytes[index] for index in range]
+            @test collect(codeunits(String(string))) == expected
+            @test convert(String, string) == String(expected)
+        end
+    end
+    @test String(SubStaticString()) == ""
+end
+
 @testset "Conversion" begin
     hello_world = StaticString("hello world!")
     @test hello_world == "hello world!"
