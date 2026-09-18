@@ -26,5 +26,11 @@ end
 @inline Base.:(==)(a::SubStaticString, b::SubStaticString) = codeunits(a) == codeunits(b)
 
 function Base.cmp(a::AbstractStaticString, b::AbstractStaticString)
-    cmp(data(a), data(b))
+    al, bl = ncodeunits(a), ncodeunits(b)
+    for index in 1:min(al, bl)
+        left = @inbounds codeunit(a, index)
+        right = @inbounds codeunit(b, index)
+        left == right || return cmp(left, right)
+    end
+    return cmp(al, bl)
 end
