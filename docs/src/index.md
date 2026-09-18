@@ -65,6 +65,7 @@ StaticString
 @static_str
 SubStaticString
 @substatic_str
+codeunits(::SubStaticString)
 CStaticString
 @cstatic_str
 PaddedStaticString

@@ -16,15 +16,30 @@ function _memcmp(a::AbstractStaticString, b::AbstractStaticString)
 end
 
 function Base.:(==)(a::AbstractStaticString, b::AbstractStaticString)
+    (a isa SubStaticString || b isa SubStaticString) && return equal_codeunits(a, b)
     codeunits(a) == codeunits(b) && return true
     al = ncodeunits(a)
     return al == ncodeunits(b) && 0 == _memcmp(a, b, al)
 end
-# For SubStaticString, just compare code units
-@inline Base.:(==)(a::AbstractStaticString, b::SubStaticString) = codeunits(a) == codeunits(b)
-@inline Base.:(==)(a::SubStaticString, b::AbstractStaticString) = codeunits(a) == codeunits(b)
-@inline Base.:(==)(a::SubStaticString, b::SubStaticString) = codeunits(a) == codeunits(b)
+
+function equal_codeunits(a::AbstractStaticString, b::AbstractStaticString)
+    al = a isa CStaticString ? length(data(a)) : ncodeunits(a)
+    bl = b isa CStaticString ? length(data(b)) : ncodeunits(b)
+    al == bl || return false
+    for index in 1:al
+        left = @inbounds codeunit(a, index)
+        right = @inbounds codeunit(b, index)
+        left == right || return false
+    end
+    return true
+end
 
 function Base.cmp(a::AbstractStaticString, b::AbstractStaticString)
-    cmp(data(a), data(b))
+    al, bl = ncodeunits(a), ncodeunits(b)
+    for index in 1:min(al, bl)
+        left = @inbounds codeunit(a, index)
+        right = @inbounds codeunit(b, index)
+        left == right || return cmp(left, right)
+    end
+    return cmp(al, bl)
 end
