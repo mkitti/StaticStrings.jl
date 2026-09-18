@@ -22,8 +22,8 @@ module StaticStrings
 
 using Compat
 
-export StaticString, SubStaticString, CStaticString, PaddedStaticString
-export @static_str, @cstatic_str, @padded_str, @substatic_str
+export StaticString, SubStaticString, CStaticString, PaddedStaticString, WStaticString
+export @static_str, @cstatic_str, @padded_str, @substatic_str, @wstatic_str
 export @substatic
 
 include("AbstractStaticString.jl")

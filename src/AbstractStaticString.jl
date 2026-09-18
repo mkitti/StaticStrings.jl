@@ -17,7 +17,7 @@ data(s::AbstractStaticString) = s.data
 
 Base.codeunit(::AbstractStaticString) = UInt8
 Base.@propagate_inbounds Base.codeunit(s::AbstractStaticString, i::Int) = codeunits(s)[i]
-@inline Base.codeunits(s::AbstractStaticString) = s.data
+@inline Base.codeunits(s::AbstractStaticString) = data(s)
 @inline Base.ncodeunits(::AbstractStaticString{N}) where N = N
 @inline Base.ncodeunits(::Type{<: AbstractStaticString{N}}) where N = N
 Base.widen(::Type{<: AbstractStaticString}) = String

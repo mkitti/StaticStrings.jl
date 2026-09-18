@@ -27,6 +27,21 @@ macro static_str(ex, N)
 end
 _macroname(::Type{<:StaticString}) = "static"
 
+macro wstatic_str(ex)
+    s = WStaticString(unescape_string(ex))
+    quote
+        $s
+    end
+end
+macro wstatic_str(ex, N)
+    s = WStaticString{N}(unescape_string(ex))
+    quote
+        $s
+    end
+end
+_macroname(::Type{<:WStaticString}) = "wstatic"
+
+
 """
     substatic"string"[N]
 
