@@ -25,7 +25,7 @@ struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
     data::NTuple{N, UInt8}
     ind::R
     function SubStaticString{N,R}(data, ind::R) where {N,R <: AbstractUnitRange}
-        ind ⊆ eachindex(data) || _throw_invalid_range(ind, eachindex(data))
+        ind ⊆ eachindex(data) || throw_invalid_range(ind, eachindex(data))
         return new{N, R}(data, ind)
     end
     function SubStaticString{N,R}(data::AbstractString, ind::R) where {N,R <: AbstractUnitRange}
@@ -39,7 +39,7 @@ struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
 end
 
 # Keep error-message allocation and GC frame setup off the valid constructor path.
-@noinline _throw_invalid_range(ind::AbstractUnitRange, indices::AbstractUnitRange) =
+@noinline throw_invalid_range(ind::AbstractUnitRange, indices::AbstractUnitRange) =
     throw(ArgumentError("$ind is not a subset of $indices, the indices of data"))
 
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
@@ -49,6 +49,14 @@ SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = 
 SubStaticString{0}(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString{0}(data, Base.OneTo(ind))
 @inline Base.ncodeunits(s::SubStaticString) = length(s.ind)
 @inline Base.codeunits(s::SubStaticString) = s.data[s.ind]
+
+# Base forwards other Integer indices to Int, matching the AbstractStaticString method.
+Base.@propagate_inbounds function Base.codeunit(s::SubStaticString, index::Int)
+    @boundscheck 1 <= index <= ncodeunits(s) || throw_bounds_error(s, index)
+    return @inbounds s.data[first(s.ind) + index - 1]
+end
+
+@noinline throw_bounds_error(s, index) = throw(BoundsError(s, index))
 
 """
     CStaticString(data::NTuple{N,UInt8})
