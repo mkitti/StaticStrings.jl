@@ -1,6 +1,41 @@
 using StaticStrings
 using Test
 
+function write_strings!(operation, io, strings)
+    for string in strings
+        truncate(io, 0)
+        seekstart(io)
+        operation(io, string)
+    end
+    return nothing
+end
+
+@testset "Allocation-free IO" begin
+    bytes = "xα\0y" |> codeunits |> Tuple
+    for strings in ([SubStaticString(bytes, 1:stop) for stop in 0:5],
+                    [SubStaticString(bytes, 2:stop) for stop in 1:5],
+                    [SubStaticString(bytes, UInt8(2):stop) for stop in UInt8(1):UInt8(5)],
+                    [SubStaticString(bytes, Base.OneTo(stop)) for stop in UInt8(0):UInt8(5)],
+                    [SubStaticString(), SubStaticString(bytes, 99:98)],
+                    [PaddedStaticString{5,0xff}(bytes[1:stop]) for stop in 0:5])
+        io = IOBuffer(; sizehint=5)
+        for operation in (write, print)
+            write_strings!(operation, io, strings)
+            @testset "$(operation) $(eltype(strings))" begin
+                @test (@allocated write_strings!(operation, io, strings)) == 0
+            end
+            for string in strings
+                truncate(io, 0)
+                seekstart(io)
+                result = operation(io, string)
+                @test result === (operation === write ? Int(ncodeunits(string)) : nothing)
+                seekstart(io)
+                @test Tuple(read(io)) == codeunits(string)
+            end
+        end
+    end
+end
+
 @testset "IO" begin
     io = IOBuffer(repeat([[UInt8(x) for x in "ba"]; 0x00], 3))
     @test read(io, StaticString{3}) == static"ba\0"
