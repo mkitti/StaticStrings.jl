@@ -1,27 +1,34 @@
 using StaticStrings
 using Test
 
-@testset "Full backing storage to String" begin
+@testset "Logical content to String" begin
     for (string, expected) in ((StaticString(()), ""), (CStaticString(), ""),
-                               (PaddedStaticString{0,0x00}(()), ""),
+                               (PaddedStaticString{0, '\0'}(()), ""),
                                (StaticString("a\0b"), "a\0b"),
                                (CStaticString("abc"), "abc"),
-                               (CStaticString("abc\0"), "abc\0"),
-                               (PaddedStaticString{5,0x00}("abc"), "abc\0\0"),
-                               (PaddedStaticString{5,0xff}("abc"), "abc\xff\xff"))
+                               (CStaticString("abc\0"), "abc"),
+                               (CStaticString("a\0\xff"), "a"),
+                               (CStaticString("\0abc"), ""),
+                               (StaticString("\xff"), "\xff"),
+                               (padded"abc\0", "abc"),
+                               (padded"a\0b\0", "a\0b"),
+                               (padded"a\0 ", "a\0"),
+                               (padded"a b ", "a b"),
+                               (padded" ", ""),
+                               (padded"abc\xff", "abc"))
         @test String(string) == expected
         @test convert(String, string) == expected
     end
 end
 
 @testset "SubStaticString to String" begin
-    bytes = "xα\0y" |> codeunits |> Tuple
+    source = "xα\0y"
     for ranges in ([1:stop for stop in 0:5], [2:stop for stop in 1:5], [99:98],
                    [UInt8(2):stop for stop in UInt8(1):UInt8(5)],
                    [Base.OneTo(stop) for stop in UInt8(0):UInt8(5)])
         for range in ranges
-            string = SubStaticString(bytes, range)
-            expected = UInt8[bytes[index] for index in range]
+            string = SubStaticString(source, range)
+            expected = UInt8[codeunit(source, index) for index in range]
             @test collect(codeunits(String(string))) == expected
             @test convert(String, string) == String(expected)
         end
@@ -38,8 +45,8 @@ end
     hello_world_str = String(hello_world)
     @test hello_world_str isa String
     @test convert(String, hello_world) === hello_world_str
-    @test convert(Tuple, hello_world) == (0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21) 
-    @test Tuple(hello_world) == (0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21)
+    @test convert(Tuple, hello_world) == Tuple(b"hello world!")
+    @test Tuple(hello_world) == Tuple(b"hello world!")
     hello_world0 = CStaticString("hello world!\0")
     hello_world0c = Base.cconvert(Ptr{UInt8}, hello_world0)
     GC.@preserve hello_world0 hello_world0c begin

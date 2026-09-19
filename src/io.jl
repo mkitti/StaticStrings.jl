@@ -27,15 +27,15 @@ end
 
 Write `count` bytes to `io` from the substring's starting index or index 1 otherwise.
 
-Throw `BoundsError` if `count` is negative or any requested byte lies outside `data(string)`.
+Throw `BoundsError` if `count` is negative or any requested byte lies outside `Tuple(string)`.
 `@inbounds` skips these checks, making the caller responsible for preventing invalid memory reads.
 """
 @inline function write_codeunits(io::IO, string::AbstractStaticString, count::Integer)
     count == 0 && return 0
     start = string isa SubStaticString ? first(string.ind) : 1
-    @boundscheck 1 <= start <= length(data(string)) && 0 < count <= length(data(string)) - start + 1 ||
+    @boundscheck 1 <= start <= length(Tuple(string)) && 0 < count <= length(Tuple(string)) - start + 1 ||
         throw(BoundsError(string, (start, count)))
-    bytes = Ref(data(string))
+    bytes = Ref(Tuple(string))
     offset = Int(start) - 1
     GC.@preserve bytes begin
         pointer = Ptr{UInt8}(Base.unsafe_convert(Ptr{Cvoid}, bytes)) + offset
@@ -43,14 +43,8 @@ Throw `BoundsError` if `count` is negative or any requested byte lies outside `d
     end
 end
 
-function Base.write(io::IO, string::AbstractStaticString)
-    count = string isa CStaticString ? length(data(string)) : ncodeunits(string)
-    written = @inbounds write_codeunits(io, string, count)
-    if string isa CStaticString && (count == 0 || data(string)[end] != 0x00)
-        written += write(io, 0x00)
-    end
-    return written
-end
+Base.write(io::IO, string::AbstractStaticString) =
+    @inbounds write_codeunits(io, string, ncodeunits(string))
 
 Base.print(io::IO, string::AbstractStaticString) =
     (@inbounds write_codeunits(io, string, ncodeunits(string)); nothing)

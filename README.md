@@ -9,13 +9,15 @@ Fixed-length strings wrapping a `NTuple` for Julia.
 
 ## Introduction
 
-StaticStrings.jl implements several `AbstractString` subtypes that wrap a `NTuple{N,UInt8}`. An `AbstractStaticString` is a `AbstractString` with `N` codeunits.
+StaticStrings.jl implements `AbstractString` subtypes backed by an `NTuple{N, UInt8}`. `N` is the backing capacity in bytes, not necessarily the logical content length.
 
 The concrete subtypes of `AbstractStaticString` are as follows.
-1. `StaticString{N}` is just a wrapper of a `NTuple{N,UInt8}` of exactly `N` codeunits, padded with `\0`, nul, bytes.
-2. `SubStaticString{N, R}` is a wrapper of a `NTuple{N,UInt8}` of up to `N` codeunits, with a unit range indicating a subset of codeunits.
-3. `CStaticString{N}` is similar to a `StaticString` but requires all the NUL bytes to be terminal codeunits. The struct also contains an extra terminal NUL.
-4. `PaddedStaticString{N,PAD}` is siimlar to `StaticString` but is padded with an arbitrary byte codeunit.
+1. `StaticString{N}`, with a capacity of `N` UTF-8 code units, uses all `N` code units as logical content, including all NULs and any constructor-added padding.
+2. `SubStaticString{N,R}`, with integer unit range type `R`, has exactly the bytes selected by its range (for example, `2:5`), including any NULs.
+3. `CStaticString{N}` ends before its first NUL, or after all `N` stored bytes if none is present. An extra safety NUL guarantees termination for C calls.
+4. `PaddedStaticString{N, PAD}` excludes only trailing `PAD` bytes. Internal occurrences of `PAD` remain content. NULs remain content unless they occur at the end and `PAD == 0`.
+
+String operations and conversions use the logical content defined above, while `Tuple(s)` exposes the full backing storage. Constructors reject content that exceeds the destination capacity.
 
 ## Usage
 
@@ -33,7 +35,7 @@ julia> static"Hello world!" |> typeof
 StaticString{12}
 ```
 
-The number of code units can also be explicitly specified. If the specified length is longer than needed, additional NUL bytes will be appended. Printing the string will stop at the first NUL byte.
+The number of code units can also be explicitly specified. If the specified length is longer than needed, additional NUL bytes become part of the content. Both `print` and `write` include those bytes, even though a terminal may not display them.
 
 ```julia
 julia> static"Hello world!"12
@@ -42,17 +44,17 @@ static"Hello world!"12
 julia> static"Hello world!"31
 static"Hello world!\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"31
 
-julia> print(static"Hello world!"31, static" Bye!")
-Hello world! Bye!
+julia> ncodeunits(static"Hello world!"31)
+31
 ```
 
 ### Calling C code
 
-One particular application for these fixed length strings is calling C code. The `CStaticString` provides a variant that ensures a terminal NUL byte and ensures that no terminal NUL bytes are contained in the string.
+One application is calling C code. `CStaticString` guarantees NUL termination and treats the first NUL as the end of its content.
 
 ```julia
 julia> cs = cstatic"Hello world!\n"
-cstatic"Hello world!"13
+cstatic"Hello world!\n"13
 
 julia> ccall(:printf, Cint, (Ptr{Cchar},), cs)
 Hello world!
@@ -65,15 +67,17 @@ Hello world!
 
 ### Changing the padding
 
-Another variant is the `PaddedStaticString`. The last code unit in the provided string is used as padding. We can see the effect of the padding by converting it to a `StaticString`.
+Another variant is `PaddedStaticString`. The last code unit in the nonempty literal is used as padding. Logical content ends at the last code unit that differs from the padding value. Capacity defaults to the unescaped literal's byte length, including padding. Add a suffix, such as `padded"Hello "20`, to specify it explicitly.
 
 ```julia
-julia> ps = padded"Hello "20
-padded"Hello "20
+julia> ps = padded"Hello "
+padded"Hello "6
 
-julia> StaticString(ps)
-static"Hello               "20
+julia> ncodeunits(ps)
+5
 ```
+
+`padded"Hello\0"` stores six bytes, including its NUL terminator, without an extra safety byte. Unlike `CStaticString`, it excludes only trailing NULs and retains embedded NULs as content.
 
 ### Compact Array Layout
 
@@ -103,6 +107,32 @@ static"Hola\0"5
 julia> sizeof(strings)
 15
 ```
+
+For fixed-capacity text whose length varies, use `SubStaticString{N}`:
+
+```julia
+julia> strings = [SubStaticString{5}("Hello")];
+
+julia> push!(strings, "Bye")
+2-element Vector{SubStaticString{5, Base.OneTo{Int64}}}:
+ substatic"Hello"5
+ substatic"Bye"5
+
+julia> ncodeunits.(strings)
+2-element Vector{Int64}:
+ 5
+ 3
+```
+
+The default range is `Base.OneTo{Int}` and counts bytes, not characters. The inferred vector has a concrete element type. A typed literal such as `SubStaticString{5}["Hello"]` instead retains the partially specified element type.
+
+## Bytes and Objects
+
+`write(io, s)` writes only logical content for every type, including `CStaticString`. It does not append a C terminator. Write a terminator explicitly with `write(io, s, '\0')` when a wire format requires one. Write the backing bytes explicitly with `write(io, collect(Tuple(s)))`. Use `Serialization.serialize` and `deserialize` to preserve the Julia object's type, capacity, backing bytes, and range.
+
+`read(io, T)` for a fixed-capacity type, such as `read(io, CStaticString{N})`, reads exactly `N` backing bytes. `read(io, CStaticString)` reads until the first NUL, consuming the terminator. Pair it with `write(io, s, '\0')` to round-trip C-string content, not backing storage.
+
+For C calls, `Ptr{UInt8}` and `Ptr{Cchar}` conversions point to the start of logical content and require an explicit byte count unless the type is `CStaticString`, which guarantees termination. Outside `ccall`, preserve the owner returned by `Base.cconvert` with `GC.@preserve` while using `Base.unsafe_convert`. `Cstring` conversion creates a terminated `String` and rejects embedded NULs.
 
 ## Status
 

@@ -13,16 +13,16 @@ end
         (SubStaticString("\xffa\xff", 2:2), SubStaticString("a\0", Base.OneTo(UInt8(1))), true),
         (SubStaticString("ab", 1:2), SubStaticString("ac", 1:2), false),
         (SubStaticString("\xff", 99:98), SubStaticString(), true),
-        (SubStaticString("a\0", 1:1), CStaticString("a\0"), false),
-        (SubStaticString("a\0", 1:2), CStaticString("a\0"), true),
-        (SubStaticString("\xffa", UInt8(2):UInt8(2)), PaddedStaticString{3,0xff}("a"), true),
+        (SubStaticString("a\0", 1:1), CStaticString("a\0"), true),
+        (SubStaticString("a\0", 1:2), CStaticString("a\0"), false),
+        (SubStaticString("\xffa", UInt8(2):UInt8(2)), padded"a\xff", true),
         (SubStaticString("\u03b1", 2:2), StaticString("\xb1"), true),
     )
         @test (left == right) == expected
         @test (right == left) == expected
     end
     bytes = Tuple(codeunits("abcdefghijklmnopqrstuvwxyzABCDEFG"))
-    left = [SubStaticString(bytes, 2:mod(index, 33) + 1) for index in 1:256]
+    left = [SubStaticString(bytes, 2 : mod(index, 33) + 1) for index in 1:256]
     right = copy(left)
     right[2:2:end] = reverse(right[2:2:end])
     output = fill(false, length(left))
@@ -45,7 +45,7 @@ end
         (SubStaticString("\xff\u03b1", 2:3), "\u03b1"),
         (StaticString("a"), "a"),
         (CStaticString("a\0"), "a"),
-        (PaddedStaticString{3,0xff}("a"), "a"),
+        (padded"a\xff", "a"),
     )
     for (left, left_text) in strings, (right, right_text) in strings
         @test sign(cmp(left, right)) == sign(cmp(left_text, right_text))
@@ -77,12 +77,12 @@ end
     @test c == static"Hello"[2:3]
     @test cstatic"Hello" == static"Hello"
     for (left, right) in ((StaticString("a"), CStaticString("a\0")),
-                          (StaticString("a\0"), CStaticString("a\0")),
                           (CStaticString("a\0"), CStaticString("a\0\0")),
-                          (PaddedStaticString{3,0x00}("a"), CStaticString("a\0")))
+                          (padded"a\0", CStaticString("a\0")))
         @test left == right
         @test right == left
     end
+    @test StaticString("a\0") != CStaticString("a\0")
 end
 
 @static if VERSION ≥ v"1.6"
