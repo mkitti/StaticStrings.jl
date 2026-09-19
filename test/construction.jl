@@ -30,6 +30,29 @@ construct_substatic_strings!(output, bytes, ranges) =
     end
 end
 
+@testset "SubStaticString integer ranges" begin
+    bytes = (0x61, 0x62, 0x63, 0x64)
+    for RealType in (Float16, Float32, Float64, BigFloat, Rational{Int}, Rational{BigInt})
+        for range in (UnitRange(RealType(2), RealType(3)), UnitRange(RealType(2), RealType(1)))
+            for source in (bytes, "abcd", StaticString(bytes))
+                @test_throws MethodError SubStaticString(source, range)
+                @test_throws MethodError SubStaticString{4}(source, range)
+                @test_throws MethodError SubStaticString{4,UnitRange{<:Integer}}(source, range)
+            end
+            @test_throws TypeError SubStaticString{4,typeof(range)}
+        end
+    end
+    @test_throws MethodError SubStaticString(bytes, UnitRange(Float16(2), Float16(2050)))
+    for IntegerType in (Int, UInt8, UInt64, Int128, UInt128, BigInt)
+        for range in (IntegerType(2):IntegerType(3), Base.OneTo(IntegerType(3)))
+            string = SubStaticString(bytes, range)
+            @test string.ind === range
+            @test typeof(string.ind) === typeof(range)
+            @test codeunit(string, 1) === bytes[Int(first(range))]
+        end
+    end
+end
+
 @testset "Constructon" begin
     hello = StaticString("hello")
     @test hello == "hello"

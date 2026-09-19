@@ -15,34 +15,34 @@ end
 
 """
     SubStaticString(data::NTuple{N, UInt8}, ind::Integer)
-    SubStaticString(data::NTuple{N, UInt8}, ind::AbstractUnitRange)
+    SubStaticString(data::NTuple{N, UInt8}, ind::AbstractUnitRange{<:Integer})
     substatic"string"N
 
 [`AbstractStaticString`](@ref) that stores up to `N` codeunits in a NTuple{N,UInt8}.
-The actual codeunits used are a subset indicated by an AbstractUnitRange.
+The actual codeunits used are a subset indicated by an `AbstractUnitRange{<:Integer}`.
 """
-struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
+struct SubStaticString{N, R <: AbstractUnitRange{<:Integer}} <: AbstractStaticString{N}
     data::NTuple{N, UInt8}
     ind::R
-    function SubStaticString{N,R}(data, ind::R) where {N,R <: AbstractUnitRange}
+    function SubStaticString{N,R}(data, ind::R) where {N,R <: AbstractUnitRange{<:Integer}}
         ind ⊆ eachindex(data) || throw_invalid_range(ind, eachindex(data))
         return new{N, R}(data, ind)
     end
-    function SubStaticString{N,R}(data::AbstractString, ind::R) where {N,R <: AbstractUnitRange}
+    function SubStaticString{N,R}(data::AbstractString, ind::R) where {N,R <: AbstractUnitRange{<:Integer}}
         return SubStaticString{N, R}(StaticString{N}(data), ind)
     end
 
-    function SubStaticString{N,R}(ass::AbstractStaticString, ind::R) where {N,R <: AbstractUnitRange}
+    function SubStaticString{N,R}(ass::AbstractStaticString, ind::R) where {N,R <: AbstractUnitRange{<:Integer}}
         return SubStaticString{N, R}(data(ass), ind)
     end
-    SubStaticString(data::NTuple{N,UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N,R}(data, ind)
+    SubStaticString(data::NTuple{N,UInt8}, ind::R) where {N, R <: AbstractUnitRange{<:Integer}} = SubStaticString{N,R}(data, ind)
 end
 
 # Keep error-message allocation and GC frame setup off the valid constructor path.
 @noinline throw_invalid_range(ind::AbstractUnitRange, indices::AbstractUnitRange) =
     throw(ArgumentError("$ind is not a subset of $indices, the indices of data"))
 
-SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
+SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange{<:Integer}} = SubStaticString{N, R}(data, ind)
 SubStaticString(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
 SubStaticString(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString(data, Base.OneTo(ind))
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
