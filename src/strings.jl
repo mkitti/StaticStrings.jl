@@ -51,8 +51,8 @@ Base.@propagate_inbounds Base.nextind(s::AbstractStaticString{N}, i::Int) where 
     ifelse(b & 0xc0 ≠ 0x80, i, i+1)
 end
 
-Base.byte_string_classify(s::AbstractStaticString{N}) where N =
-    ccall(:u8_isvalid, Int32, (Ptr{UInt8}, Int), Ref(s), N)
+Base.byte_string_classify(s::AbstractStaticString) =
+    Base.byte_string_classify(Base.CodeUnits(s))
 
 @inline function Base.iterate(s::AbstractStaticString{N}, i::Int=firstindex(s)) where N
     (i % UInt) - 1 < ncodeunits(s) || return nothing
@@ -91,11 +91,13 @@ Base.@propagate_inbounds function Base.getindex(s::AbstractStaticString, i::Int)
     return getindex_continued(s, i, u)
 end
 
+@noinline throw_string_index_error(string, index) = throw(StringIndexError(string, index))
+
 function getindex_continued(s::AbstractStaticString{N}, i::Int, u::UInt32) where N
     if u < 0xc0000000
         # called from `getindex` which checks bounds
         @inbounds isvalid(s, i) && @goto ret
-        string_index_err(s, i)
+        throw_string_index_error(s, i)
     end
     n = ncodeunits(s)
 
@@ -124,14 +126,15 @@ Base.getindex(s::AbstractStaticString, r::AbstractUnitRange{<:Integer}) = s[Int(
     i, j = first(r), last(r)
     @boundscheck begin
         checkbounds(s, r)
-        @inbounds isvalid(s, i) || string_index_err(s, i)
-        @inbounds isvalid(s, j) || string_index_err(s, j)
+        @inbounds isvalid(s, i) || throw_string_index_error(s, i)
+        @inbounds isvalid(s, j) || throw_string_index_error(s, j)
     end
     j = nextind(s, j) - 1
     n = j - i + 1
     ss = _string_n(n)
     rs = Ref(s)
-    GC.@preserve rs ss unsafe_copyto!(pointer(ss), Ptr{UInt8}(pointer_from_objref(rs)) + i-1, n)
+    offset = s isa SubStaticString ? Int(first(s.ind)) - 1 : 0
+    GC.@preserve rs ss unsafe_copyto!(pointer(ss), Ptr{UInt8}(pointer_from_objref(rs)) + offset + i - 1, n)
     return ss
 end
 if VERSION <= v"1.8"

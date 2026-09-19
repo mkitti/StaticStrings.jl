@@ -1,19 +1,15 @@
 """
     AbstractStaticString{N}
 
-Represents a string of `N` codeunits
+Represent a string with backing capacity for `N` UTF-8 code units.
+
+`ncodeunits(string)` counts logical bytes, which can be fewer than `N`.
+`Tuple(string)` exposes all `N` backing bytes.
 """
 abstract type AbstractStaticString{N} <: AbstractString end
 
 (ASS::Type{<:AbstractStaticString})(data::NTuple{N,Int8}) where N = ASS{N}(UInt8.(data))
 (ASS::Type{<:AbstractStaticString{N}})(data::NTuple{N,Int8}) where N = ASS(UInt8.(data))
-
-"""
-    StaticStrings.data(string::AbstractStaticString{N})::NTuple{N,UInt8} where N
-
-Retrieve the internal `Tuple` containing the `N` stored `UInt8` code units.
-"""
-data(s::AbstractStaticString) = s.data
 
 Base.codeunit(::AbstractStaticString) = UInt8
 Base.@propagate_inbounds Base.codeunit(s::AbstractStaticString, i::Int) = codeunits(s)[i]

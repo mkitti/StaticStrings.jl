@@ -31,7 +31,7 @@ _macroname(::Type{<:StaticString}) = "static"
     substatic"string"[N]
 
 Create a [`SubStaticString`](@ref) from "string".
-Optionally, specify the number of codeunits, `N`.
+Optionally, specify the backing capacity in code units, `N`.
 The result will be a `SubStaticString{N}` but the codeunits used will be those
 of the original string.
 
@@ -67,7 +67,7 @@ _macroname(::Type{<:SubStaticString}) = "substatic"
     cstatic"string"[N]
 
 Create a [`CStaticString`](@ref) from "string".
-Optionally, specify the number of codeunits, `N`.
+Optionally, specify the backing capacity in code units, `N`.
 
 # Examples
 ```jldoctest
@@ -97,22 +97,25 @@ end
 _macroname(::Type{<:CStaticString}) = "cstatic"
 
 """
-    padded"string[PAD]"N
+    padded"string[PAD]"[N]
 
-Create a [`PaddedStaticString`](@ref) of `N` codeunits from "string".
-The last codeunit in the provided string becomes the `PAD`.
+Create a [`PaddedStaticString`](@ref) from a nonempty literal whose last code unit specifies `PAD`.
+If `N` is omitted, the capacity is the number of code units in the unescaped literal,
+including the padding byte.
 
 # Examples
 ```jldoctest
-julia> padded"私は元気です。 ありがとうございました。 "64
-padded"私は元気です。 ありがとうございました。 "64
+julia> padded"私は元気です。 ありがとうございました! "
+padded"私は元気です。 ありがとうございました! "57
 
-julia> padded"私は元気です。 ありがとうございました。 "64 |> StaticString
-static"私は元気です。 ありがとうございました。      "64
+julia> padded"私は元気です。 ありがとうございました! " |> StaticString
+static"私は元気です。 ありがとうございました!"56
 ```
 """
-macro padded_str(ex, N)
+macro padded_str(ex, N=nothing)
     s = unescape_string(ex)
+    isempty(s) && throw(ArgumentError("A padded literal must contain at least one code unit to specify padding"))
+    N = isnothing(N) ? ncodeunits(s) : N
     pad = codeunits(s)[end]
     s = PaddedStaticString{N, pad}(s)
     quote
