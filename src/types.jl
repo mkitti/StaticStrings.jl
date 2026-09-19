@@ -47,7 +47,7 @@ SubStaticString(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = Sub
 SubStaticString(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString(data, Base.OneTo(ind))
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
 SubStaticString{0}(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString{0}(data, Base.OneTo(ind))
-@inline Base.ncodeunits(s::SubStaticString) = length(s.ind)
+@inline Base.ncodeunits(s::SubStaticString) = Int(length(s.ind))
 
 """
     codeunits(text::SubStaticString)
