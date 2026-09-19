@@ -3,6 +3,7 @@ function Base.read(io::IO, ::Type{T}) where {N, T <: AbstractStaticString{N}}
         read(io, UInt8)
     end)
 end
+
 function Base.read(io::IO, ::Type{CStaticString}; sizehint=255)
     buffer = UInt8[]
     sizehint!(buffer, sizehint)
@@ -15,10 +16,22 @@ function Base.read(io::IO, ::Type{CStaticString}; sizehint=255)
     return CStaticString((buffer...,))
 end
 
+
 @static if isdefined(Base, :AnnotatedIOBuffer)
     Base.write(io::Base.AnnotatedIOBuffer, cs::CStaticString{N}) where N =
         invoke(write, Tuple{IO, CStaticString{N}}, io, cs)
+    Base.write(io::Base.AnnotatedIOBuffer, string::SubStaticString) =
+        invoke(write, Tuple{IO, SubStaticString}, io, string)
 end
+
+function Base.write(io::IO, string::SubStaticString)
+    written = 0
+    for index in 1:ncodeunits(string)
+        written += write(io, @inbounds codeunit(string, index))
+    end
+    return written
+end
+
 function Base.write(io::IO, cs::CStaticString{N}) where N
     foreach(codeunits(cs)) do byte
         write(io, byte)
@@ -30,3 +43,5 @@ function Base.write(io::IO, cs::CStaticString{N}) where N
         return N
     end
 end
+
+Base.print(io::IO, string::SubStaticString) = (write(io, string); nothing)
