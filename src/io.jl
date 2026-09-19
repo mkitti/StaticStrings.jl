@@ -43,3 +43,5 @@ function Base.write(io::IO, cs::CStaticString{N}) where N
         return N
     end
 end
+
+Base.print(io::IO, string::SubStaticString) = (write(io, string); nothing)
