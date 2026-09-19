@@ -15,40 +15,58 @@ end
 
 """
     SubStaticString(data::NTuple{N, UInt8}, ind::Integer)
-    SubStaticString(data::NTuple{N, UInt8}, ind::AbstractUnitRange)
+    SubStaticString(data::NTuple{N, UInt8}, ind::AbstractUnitRange{<:Integer})
     substatic"string"N
 
 [`AbstractStaticString`](@ref) that stores up to `N` codeunits in a NTuple{N,UInt8}.
-The actual codeunits used are a subset indicated by an AbstractUnitRange.
+The actual codeunits used are a subset indicated by an `AbstractUnitRange{<:Integer}`.
 """
-struct SubStaticString{N, R <: AbstractUnitRange} <: AbstractStaticString{N}
+struct SubStaticString{N, R <: AbstractUnitRange{<:Integer}} <: AbstractStaticString{N}
     data::NTuple{N, UInt8}
     ind::R
-    function SubStaticString{N,R}(data, ind::R) where {N,R <: AbstractUnitRange}
-        ind ⊆ eachindex(data) || _throw_invalid_range(ind, eachindex(data))
+    function SubStaticString{N,R}(data, ind::R) where {N,R <: AbstractUnitRange{<:Integer}}
+        ind ⊆ eachindex(data) || throw_invalid_range(ind, eachindex(data))
         return new{N, R}(data, ind)
     end
-    function SubStaticString{N,R}(data::AbstractString, ind::R) where {N,R <: AbstractUnitRange}
+    function SubStaticString{N,R}(data::AbstractString, ind::R) where {N,R <: AbstractUnitRange{<:Integer}}
         return SubStaticString{N, R}(StaticString{N}(data), ind)
     end
 
-    function SubStaticString{N,R}(ass::AbstractStaticString, ind::R) where {N,R <: AbstractUnitRange}
+    function SubStaticString{N,R}(ass::AbstractStaticString, ind::R) where {N,R <: AbstractUnitRange{<:Integer}}
         return SubStaticString{N, R}(data(ass), ind)
     end
-    SubStaticString(data::NTuple{N,UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N,R}(data, ind)
+    SubStaticString(data::NTuple{N,UInt8}, ind::R) where {N, R <: AbstractUnitRange{<:Integer}} = SubStaticString{N,R}(data, ind)
 end
 
 # Keep error-message allocation and GC frame setup off the valid constructor path.
-@noinline _throw_invalid_range(ind::AbstractUnitRange, indices::AbstractUnitRange) =
+@noinline throw_invalid_range(ind::AbstractUnitRange, indices::AbstractUnitRange) =
     throw(ArgumentError("$ind is not a subset of $indices, the indices of data"))
 
-SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange} = SubStaticString{N, R}(data, ind)
+SubStaticString{N}(data::NTuple{N, UInt8}, ind::R) where {N, R <: AbstractUnitRange{<:Integer}} = SubStaticString{N, R}(data, ind)
 SubStaticString(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString(data, Base.OneTo(ind))
 SubStaticString(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString(data, Base.OneTo(ind))
 SubStaticString{N}(data::NTuple{N, UInt8}, ind::Integer=length(data)) where N = SubStaticString{N}(data, Base.OneTo(ind))
 SubStaticString{0}(data::Tuple{}=(), ind::Integer=length(data)) = SubStaticString{0}(data, Base.OneTo(ind))
-@inline Base.ncodeunits(s::SubStaticString) = length(s.ind)
+@inline Base.ncodeunits(s::SubStaticString) = Int(length(s.ind))
+
+"""
+    codeunits(text::SubStaticString)
+
+Return a tuple of the active bytes in `text`.
+
+When the active length varies at runtime, constructing and iterating that tuple
+can allocate. Use `Base.CodeUnits(text)` to iterate over the active bytes through
+`codeunit` without constructing a tuple slice.
+"""
 @inline Base.codeunits(s::SubStaticString) = s.data[s.ind]
+
+# Base forwards other Integer indices to Int, matching the AbstractStaticString method.
+Base.@propagate_inbounds function Base.codeunit(s::SubStaticString, index::Int)
+    @boundscheck 1 <= index <= ncodeunits(s) || throw_bounds_error(s, index)
+    return @inbounds s.data[first(s.ind) + index - 1]
+end
+
+@noinline throw_bounds_error(s, index) = throw(BoundsError(s, index))
 
 """
     CStaticString(data::NTuple{N,UInt8})
@@ -142,5 +160,10 @@ function Base.ncodeunits(string::PaddedStaticString{N,PAD}) where {N,PAD}
     end
 end
 Base.codeunits(string::PaddedStaticString) = string.data[1:ncodeunits(string)]
+
+Base.@propagate_inbounds function Base.codeunit(string::PaddedStaticString, index::Int)
+    @boundscheck 1 <= index <= ncodeunits(string) || throw_bounds_error(string, index)
+    return @inbounds string.data[index]
+end
 
 const StaticStringSubTypes = (StaticString, SubStaticString, CStaticString, PaddedStaticString)
