@@ -11,6 +11,23 @@ using Test
     @test widen(StaticString{5}) == String
 end
 
+@testset "SubStaticString ncodeunits" begin
+    bytes = (0x61, 0x62, 0x63)
+    for IntegerType in (Int, UInt64, Int128, UInt128, BigInt)
+        for range in (IntegerType(2):IntegerType(3), IntegerType(2):IntegerType(1),
+                      Base.OneTo(IntegerType(3)), Base.OneTo(IntegerType(0)))
+            string = SubStaticString(bytes, range)
+            expected = UInt8[bytes[Int(index)] for index in range]
+            @test ncodeunits(string) === length(expected)
+            for operation in (print, write)
+                io = IOBuffer()
+                @test operation(io, string) === (operation === print ? nothing : length(expected))
+                @test take!(io) == expected
+            end
+        end
+    end
+end
+
 copy_substatic_codeunits!(output, string::SubStaticString) =
     map!(index -> codeunit(string, index), output, eachindex(output))
 
