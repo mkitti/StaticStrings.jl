@@ -26,6 +26,7 @@ export StaticString, SubStaticString, CStaticString, PaddedStaticString, WStatic
 export @static_str, @cstatic_str, @padded_str, @substatic_str, @wstatic_str
 export @substatic
 
+include("StaticUnitRanges.jl")
 include("AbstractStaticString.jl")
 include("types.jl")
 include("comparison.jl")
