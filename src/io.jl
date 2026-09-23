@@ -15,7 +15,7 @@ function Base.read(io::IO, ::Type{CStaticString}; sizehint=255)
     return CStaticString((buffer...,))
 end
 function Base.write(io::IO, ass::T) where {N, T<: AbstractStaticString{N}}
-    foreach(codeunits(ass)) do byte
+    sum(codeunits(ass)) do byte
         write(io, byte)
     end
 end

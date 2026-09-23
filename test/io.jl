@@ -22,8 +22,8 @@ using Test
     @test read(io, CStaticString; sizehint=3) == static"hello\0"
     @test read(io, CStaticString; sizehint=3) == static"bye\0"
     io = IOBuffer()
-    write(io, cstatic"Hello World")
-    write(io, static"Hola Mundo\0\0")
+    @test write(io, cstatic"Hello World") == 12
+    @test write(io, static"Hola Mundo\0\0") == 12
     seekstart(io)
     @test read(io, CStaticString) == cstatic"Hello World"
     @test read(io, CStaticString) == cstatic"Hola Mundo"
