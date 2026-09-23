@@ -151,4 +151,9 @@ function Base.ncodeunits(string::PaddedStaticString{N,PAD}) where {N,PAD}
 end
 Base.codeunits(string::PaddedStaticString) = string.data[1:ncodeunits(string)]
 
+Base.@propagate_inbounds function Base.codeunit(string::PaddedStaticString, index::Int)
+    @boundscheck 1 <= index <= ncodeunits(string) || throw_bounds_error(string, index)
+    return @inbounds string.data[index]
+end
+
 const StaticStringSubTypes = (StaticString, SubStaticString, CStaticString, PaddedStaticString)
