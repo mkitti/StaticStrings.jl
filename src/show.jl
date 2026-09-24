@@ -11,3 +11,8 @@ function Base.show(io::IO, ::MIME"text/plain", s::PaddedStaticString{N,PAD}) whe
     print(io, Char(PAD))
     print(io, "\"$N")
 end
+function Base.show(io::IO, ::MIME"text/plain", ws::WStaticString{N}) where N
+    print(io, "$(_macroname(typeof(ws)))")
+    Base.print_quoted(io, StaticString(_transcode(UInt8, ws.data)))
+    print(io, "$N")
+end
