@@ -6,6 +6,11 @@ on:
     tags: ['*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_ref:
+        description: 'Tag to (re)deploy docs for as a release, e.g. v0.3.0. Leave blank for a normal dev build.'
+        required: false
+        default: ''
 concurrency:
   # Skip intermediate builds: always.
   # Cancel intermediate builds: only if it is a pull request build.
@@ -47,6 +52,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.release_ref || github.ref }}
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
@@ -55,6 +62,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+          GITHUB_REF: ${{ github.event.inputs.release_ref && format('refs/tags/{0}', github.event.inputs.release_ref) || github.ref }}
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
